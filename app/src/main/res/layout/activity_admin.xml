@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_rounded_bg"
+        android:layout_margin="10dp"
+        android:text="@string/admin_menu_1"
+        android:textColor="@color/white"
+        android:id="@+id/admin_menu_1_button"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_rounded_bg"
+        android:layout_margin="10dp"
+        android:text="@string/admin_menu_2"
+        android:textColor="@color/white"
+        android:id="@+id/admin_menu_2_button"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_rounded_bg"
+        android:layout_margin="10dp"
+        android:text="@string/admin_menu_3"
+        android:textColor="@color/white"
+        android:id="@+id/admin_menu_3_button"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_rounded_bg"
+        android:layout_margin="10dp"
+        android:text="@string/admin_menu_4"
+        android:textColor="@color/white"
+        android:id="@+id/admin_menu_4_button"/>
+    <!--
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="신규 가입 유저 리스트"
+        android:textSize="14pt" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="신고된 게시글"
+        android:textSize="14pt" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="마음의 편지"
+        android:textSize="14pt" />
+    -->
+
+</LinearLayout>
