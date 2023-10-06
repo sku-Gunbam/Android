@@ -139,7 +139,7 @@ public class TestDeepLearningActivity extends BasicActivity {
                 Bitmap bottomLeft = Bitmap.createBitmap(originalBitmap, 0, newHeight, newWidth, newHeight);
                 Bitmap bottomRight = Bitmap.createBitmap(originalBitmap, newWidth, newHeight, newWidth, newHeight);
 
-
+                // test 작성
 
                 Handler mHandler = new Handler();
                 mHandler.postDelayed(new Runnable()  {
