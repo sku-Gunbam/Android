@@ -1,5 +1,7 @@
 package military.gunbam.view.activity;
 
+import static military.gunbam.utils.Util.INTENT_PATH;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.media.Image;
@@ -55,7 +57,7 @@ public class CameraActivity extends BasicActivity {
                 }
             }
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("draftPath",mFile.toString());
+            resultIntent.putExtra(INTENT_PATH, mFile.toString());
             setResult(Activity.RESULT_OK, resultIntent);
 
             camera2BasicFragment.closeCamera();

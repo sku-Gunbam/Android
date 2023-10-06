@@ -5,11 +5,19 @@
         android:icon="@drawable/ic_home_black_24dp"
         android:title="홈" />
     <item
-        android:id="@+id/myInfo"
-        android:icon="@drawable/ic_account_circle_black_24dp"
-        android:title="내 정보" />
+        android:id="@+id/postList"
+        android:icon="@drawable/ic_baseline_list_alt_24"
+        android:title="게시물" />
     <item
-        android:id="@+id/userList"
-        android:icon="@drawable/ic_group_black_24dp"
-        android:title="사용자 목록" />
+        android:id="@+id/myPage"
+        android:icon="@drawable/ic_account_circle_black_24dp"
+        android:title="마이페이지" />
+    <item
+        android:id="@+id/tmoSearch"
+        android:icon="@drawable/ic_baseline_directions_bus_24"
+        android:title="TMO조회" />
+    <item
+        android:id="@+id/report"
+        android:icon="@drawable/ic_baseline_local_post_office_24"
+        android:title="마음의편지" />
 </menu>

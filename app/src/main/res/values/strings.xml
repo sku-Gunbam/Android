@@ -13,6 +13,7 @@
     <string name="passwordResetButton">비밀번호 변경 링크 보내기</string>
     <string name="passwordResetText">비밀번호를 찾고자하는 아이디를 입력해주세요.</string>
     <string name="memberInit">회원정보</string>
+    <string name="memberEdit">회원정보 수정</string>
     <string name="ok">완료</string>
     <string name="name">이름 ex)홍길동</string>
     <string name="phoneNumber">전화번호 ex)01012345678</string>
@@ -37,9 +38,21 @@
     <string name="content">내용</string>
     <string name="post_title">게시물 제목</string>
     <string name="recommendation">추천 수 : 0</string>
-    <string name="free_board">자유게시판</string>
+    <string name="board_1">자유게시판</string>
+    <string name="board_2">군인게시판</string>
+    <string name="board_3">비밀게시판</string>
+    <string name="board_4">신병게시판</string>
+    <string name="board_5">정보게시판</string>
     <string name="comment_hint">댓글을 입력하세요.</string>
     <string name="back">뒤로가기</string>
     <string name="comment">댓글</string>
     <string name="recommend">추천</string>
+    <string name="please_grant_permission">권한을 허용해 주세요.</string>
+    <string name="admin">관리자</string>
+    <string name="admin_menu_1">테스트 게시물 10개 작성</string>
+    <string name="admin_menu_2">엑티비티 테스트</string>
+    <string name="admin_menu_3">딥러닝 테스트</string>
+    <string name="admin_menu_4">키 해시</string>
+    <string name="admin_menu_5">테스트 게시물 삭제</string>
+    <string name="unit_board">부대</string>
 </resources>

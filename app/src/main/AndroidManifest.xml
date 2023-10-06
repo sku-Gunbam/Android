@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-
 
     <application
         android:allowBackup="true"
@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Gunbam"
+        android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".view.activity.MainActivity"
@@ -40,7 +40,15 @@
         <activity android:name=".view.activity.GalleryActivity"/>
         <activity android:name=".view.activity.BasicActivity"/>
         <activity android:name=".view.activity.WritePostActivity"/>
-        <activity android:name=".view.activity.ViewPostActivity"/>
+        <activity android:name=".view.activity.PostActivity"/>
+        <activity android:name=".view.activity.AdminActivity"/>
+
+        <activity android:name=".view.activity.TestDeepLearningActivity"/>
+        <activity android:name=".view.activity.BoardListActivity"/>
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="a0c642890881f819a7a86e2cdfdb7534"/>   <!--네이티브 앱 키 넣기-->
     </application>
 
 </manifest>

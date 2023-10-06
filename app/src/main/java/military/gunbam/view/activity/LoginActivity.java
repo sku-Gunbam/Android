@@ -2,7 +2,6 @@ package military.gunbam.view.activity;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.Nullable;
@@ -10,14 +9,14 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import military.gunbam.R;
-import military.gunbam.model.LoginResult;
+import military.gunbam.model.login.LoginResult;
 import military.gunbam.viewmodel.LoginViewModel;
-
-import static military.gunbam.utils.Util.showToast;
 
 public class LoginActivity extends BasicActivity {
 
     private LoginViewModel loginViewModel;
+
+    private EditText emailEditText, passwordEditText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -26,9 +25,12 @@ public class LoginActivity extends BasicActivity {
 
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
-        final EditText emailEditText = findViewById(R.id.emailEditText);
-        final EditText passwordEditText = findViewById(R.id.passwordEditText);
-        final Button loginButton = findViewById(R.id.loginButton);
+        emailEditText = findViewById(R.id.emailEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+
+        findViewById(R.id.loginButton).setOnClickListener(onClickListener);
+        findViewById(R.id.gotoSignButton).setOnClickListener(onClickListener);
+        findViewById(R.id.gotoPasswordResetButton).setOnClickListener(onClickListener);
 
         loginViewModel.getLoginResultLiveData().observe(this, new Observer<LoginResult>() {
             @Override
@@ -42,20 +44,32 @@ public class LoginActivity extends BasicActivity {
                 }
 
                 if (loginResult.getSuccess() != null) {
-                    startActivity(MainActivity.class);
+                    startNewActivityAndClearStack(MainActivity.class);
                 }
             }
         });
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String email = emailEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
-                loginViewModel.login(email, password);
-            }
-        });
     }
+
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.loginButton:
+                    String email = emailEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
+                    loginViewModel.login(email, password);
+                    break;
+
+                case R.id.gotoSignButton:
+                    startActivity(SignUpActivity.class);
+                    break;
+
+                case R.id.gotoPasswordResetButton:
+                    startActivity(PasswordResetActivity.class);
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onBackPressed() {

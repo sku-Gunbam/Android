@@ -1,8 +1,10 @@
 package military.gunbam.view.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,5 +27,10 @@ public class BasicActivity extends AppCompatActivity {
         Intent intent = new Intent(this, targetActivityClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+
+    protected void showToast(Activity activity, String msg){
+        Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
     }
 }
