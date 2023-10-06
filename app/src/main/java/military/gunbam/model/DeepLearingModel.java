@@ -4,18 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.icu.util.Output;
-import android.media.Image;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.google.mediapipe.framework.image.BitmapImageBuilder;
+import com.google.mediapipe.framework.image.MPImage;
 import com.google.mediapipe.tasks.components.containers.Category;
 import com.google.mediapipe.tasks.components.containers.Detection;
 import com.google.mediapipe.tasks.core.BaseOptions;
@@ -23,17 +20,12 @@ import com.google.mediapipe.tasks.core.OutputHandler;
 import com.google.mediapipe.tasks.vision.core.RunningMode;
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetector;
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult;
-import com.google.mediapipe.framework.image.BitmapImageBuilder;
-import com.google.mediapipe.framework.image.MPImage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DeepLearingModel {
     private String[] labels = {"CAR_NUM", "RANK", "MARK", "KOREA", "NAME"};
@@ -116,7 +108,7 @@ public class DeepLearingModel {
                         //System.out.println("catScore: " + catScore);
                         //System.out.println("index: " + Integer.toString(index));
 
-                        if (catScore >= 0.4) {
+                        if (catScore >= 0.6) {
                             // 이미지에 바운딩 박스 및 정보를 그리고 수정된 비트맵을 얻습니다.
                             processedBitmap = mosaicBoundingBoxOnBitmap(originalBitmap, bbox, catName, catScore);
                             System.out.println("catName: " + catName);
