@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/chatblank"
+        android:layout_margin="5dp"
+        android:backgroundTint="@color/black_0">
+
+        <EditText
+            android:id="@+id/messageEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:hint="채팅을 입력해주세요."
+            android:layout_weight="3"
+            android:layout_marginLeft="10dp"/>
+
+
+        <ImageButton
+            android:id="@+id/sendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/messageicon"
+            android:background="@android:color/transparent"
+            android:layout_gravity="right"
+            android:layout_weight="1"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>

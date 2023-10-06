@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".view.fragment.HomeFragment">
+
+    <FrameLayout
+        android:id="@+id/calculator_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <fragment
+            android:id="@+id/Main_Calculator_Fragment"
+            android:name="military.gunbam.view.fragment.CalculatorFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:label="fragment_calculator_main"
+            tools:layout="@layout/fragment_calculator_main" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/main_board_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/calculator_container"
+        android:layout_margin="10dp">
+
+        <fragment
+            android:id="@+id/main_board_list_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="military.gunbam.view.fragment.main_Board_list_Fragment"
+            android:label="fragment_main_board_list"
+            tools:layout="@layout/fragment_main_board_list"/>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_rounded_bg"
+        android:text="@string/logout"
+        android:textColor="@color/white" />
+
+    <Button
+        android:id="@+id/adminButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_rounded_bg"
+        android:text="@string/admin"
+        android:textColor="@color/white"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/main_board_list_container">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/mainFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:clickable="true"
+        android:contentDescription="@string/write"
+        app:srcCompat="@drawable/ic_baseline_post_add_24"
+        android:backgroundTint="@color/green"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

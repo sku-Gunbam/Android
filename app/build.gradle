@@ -4,14 +4,13 @@ plugins {
     // 구글서비스 추가
     id 'com.google.gms.google-services'
 }
-
 android {
     namespace 'military.gunbam'
     compileSdk 32
 
     defaultConfig {
         applicationId "military.gunbam"
-        minSdk 21
+        minSdk 24
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -28,6 +27,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    dataBinding{
+        enabled = true
     }
 }
 
@@ -60,8 +62,15 @@ dependencies {
     // Add the dependency for the Cloud Storage library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-storage")
-
+    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation 'com.google.firebase:firebase-database:19.7.0'
+    implementation 'com.google.firebase:firebase-core:18.0.3'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     // Skip this if you don't want to use integration libraries or configure Glide.
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
+    implementation 'com.google.mediapipe:tasks-vision:latest.release'
+
+    implementation 'com.kakao.maps.open:android:2.6.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/libDaumMapAndroid.jar')
 }
