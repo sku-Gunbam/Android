@@ -15,6 +15,8 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 import military.gunbam.FirebaseHelper;
@@ -94,6 +96,12 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.Main
 
         ReadContentsView readContentsVIew = cardView.findViewById(R.id.readContentsView);
         LinearLayout contentsLayout = cardView.findViewById(R.id.contentsLayout);
+
+        if (mDataset.get(holder.getAdapterPosition()).getPublisher().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            cardView.findViewById(R.id.menu).setVisibility(View.VISIBLE);
+        } else {
+            cardView.findViewById(R.id.menu).setVisibility(View.GONE);
+        }
 
         if (contentsLayout.getTag() == null || !contentsLayout.getTag().equals(postInfo)) {
             contentsLayout.setTag(postInfo);
