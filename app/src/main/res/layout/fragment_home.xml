@@ -31,7 +31,7 @@
             android:id="@+id/main_board_list_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="military.gunbam.view.fragment.main_Board_list_Fragment"
+            android:name="military.gunbam.view.fragment.mainBoardListFragment"
             android:label="fragment_main_board_list"
             tools:layout="@layout/fragment_main_board_list"/>
     </FrameLayout>
