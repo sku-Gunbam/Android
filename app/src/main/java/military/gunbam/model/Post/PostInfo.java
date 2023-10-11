@@ -14,30 +14,30 @@ public class PostInfo implements Serializable {
     private Date createdAt;
     private String id;
     private boolean isAnonymous;
-    private int recommendationCount;
+    private ArrayList<String> recommend;
     private String boardName;
 
-    public PostInfo(String title, ArrayList<String> contents, ArrayList<String> formats, String publisher, Date createdAt, boolean isAnonymous, int recommendationCount,String boardName, String id){
+    public PostInfo(String title, ArrayList<String> contents, ArrayList<String> formats, String publisher, Date createdAt, boolean isAnonymous, ArrayList<String> recommend,String boardName, String id){
         this.title = title;
         this.contents = contents;
         this.formats = formats;
         this.publisher = publisher;
         this.createdAt = createdAt;
         this.isAnonymous = isAnonymous;
-        this.recommendationCount = recommendationCount;
+        this.recommend = recommend;
         this.boardName = boardName;
         this.id = id;
     }
 
 
-    public PostInfo(String title, ArrayList<String> contents, ArrayList<String> formats, String publisher, Date createdAt, boolean isAnonymous, int recommendationCount, String boardName){
+    public PostInfo(String title, ArrayList<String> contents, ArrayList<String> formats, String publisher, Date createdAt, boolean isAnonymous, ArrayList<String> recommend, String boardName){
         this.title = title;
         this.contents = contents;
         this.formats = formats;
         this.publisher = publisher;
         this.createdAt = createdAt;;
         this.isAnonymous = isAnonymous;
-        this.recommendationCount = recommendationCount;
+        this.recommend = recommend;
         this.boardName = boardName;
     }
 
@@ -49,7 +49,7 @@ public class PostInfo implements Serializable {
         docData.put("publisher",publisher);
         docData.put("createdAt",createdAt);
         docData.put("isAnonymous",isAnonymous);
-        docData.put("recommendationCount",recommendationCount);
+        docData.put("recommend",recommend);
         docData.put("boardName", boardName);
         return docData;
     }
@@ -98,11 +98,11 @@ public class PostInfo implements Serializable {
         this.isAnonymous = isAnonymous;
     }
 
-    public int getRecommendationCount() {
-        return this.recommendationCount;
+    public ArrayList<String> getRecommend() {
+        return this.recommend;
     }
-    public void setRecommendationCount(int recommendationCount) {
-        this.recommendationCount = recommendationCount;
+    public void setRecommend(ArrayList<String> recommend) {
+        this.recommend = recommend;
     }
 
     public String getBoardName(){ return this.boardName = boardName; }

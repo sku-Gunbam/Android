@@ -246,7 +246,7 @@ public class WritePostActivity extends AppCompatActivity {
     private void storageUpload() {
         final String title = ((EditText) findViewById(R.id.titleEditText)).getText().toString();
         if (title.length() > 0) {
-            int recommendationCount = 0;
+            ArrayList<String> recommend = new ArrayList<>();
 
             String boardName = getIntent().getStringExtra("boardName");
 
@@ -308,7 +308,7 @@ public class WritePostActivity extends AppCompatActivity {
                                             successCount--;
                                             contentsList.set(index, uri.toString());
                                             if (successCount == 0) {
-                                                PostInfo postInfo = new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
+                                                PostInfo postInfo = new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommend, boardName);
                                                 storeUpload(documentReference, postInfo);
                                             }
                                         }
@@ -338,7 +338,7 @@ public class WritePostActivity extends AppCompatActivity {
                                             successCount--;
                                             contentsList.set(index, uri.toString());
                                             if (successCount == 0) {
-                                                PostInfo postInfo = new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
+                                                PostInfo postInfo = new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommend, boardName);
                                                 storeUpload(documentReference, postInfo);
                                             }
                                         }
@@ -358,7 +358,7 @@ public class WritePostActivity extends AppCompatActivity {
             writePostViewModel.setAnonymous(isAnonymous);
 
             if (successCount == 0) {
-                storeUpload(documentReference, new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName));
+                storeUpload(documentReference, new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommend, boardName));
             }
         } else {
             showToast(WritePostActivity.this, "제목을 입력해주세요.");

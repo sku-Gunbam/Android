@@ -15,6 +15,13 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 
 import military.gunbam.FirebaseHelper;
@@ -30,6 +37,8 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.Main
     private Activity activity;
     private FirebaseHelper firebaseHelper;
     private final int MORE_INDEX = 2;
+
+    String TAG = "BoardListAdapter";
 
     static class MainViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -87,10 +96,15 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.Main
     @Override
     public void onBindViewHolder(@NonNull final MainViewHolder holder, int position) {
         CardView cardView = holder.cardView;
-        TextView titleTextView = cardView.findViewById(R.id.postTitleTextView);
+        TextView titleTextView, tvRecommendCount, tvCommentCount;
+        titleTextView = cardView.findViewById(R.id.postTitleTextView);
+        tvRecommendCount = cardView.findViewById(R.id.tvRecommendCount);
+        tvCommentCount = cardView.findViewById(R.id.tvCommentCount);
 
         PostInfo postInfo = mDataset.get(position);
         titleTextView.setText(postInfo.getTitle());
+        tvRecommendCount.setText("" + postInfo.getRecommend().size());
+        countCommentsWithId(postInfo.getId(),tvCommentCount);
 
         ReadContentsView readContentsVIew = cardView.findViewById(R.id.readContentsView);
         LinearLayout contentsLayout = cardView.findViewById(R.id.contentsLayout);
@@ -130,6 +144,40 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.Main
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.post, popup.getMenu());
         popup.show();
+    }
+
+    public static void countCommentsWithId(String postId, TextView tvCommentCount) {
+        // Firestore 인스턴스 얻기
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 'comments' 컬렉션 참조
+        CollectionReference commentsRef = db.collection("comments");
+
+        // postInfo.getId()와 같은 commentId를 가진 문서를 찾기 위한 쿼리
+        Query query = commentsRef.whereEqualTo("commentId", postId);
+
+        // 쿼리 실행
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // 쿼리 결과로부터 문서 개수 가져오기
+                    int commentCount = task.getResult().size();
+
+                    // 결과 사용 예시
+                    // count 값을 원하는 대로 활용하면 됩니다.
+                    // 예: TextView에 출력하거나 다른 처리 수행
+                    System.out.println("Comment count for postId " + postId + ": " + commentCount);
+                    tvCommentCount.setText("" + commentCount);
+                } else {
+                    // 쿼리 실패 시 예외 처리
+                    Exception e = task.getException();
+                    if (e != null) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     private void myStartActivity(Class c, PostInfo postInfo) {
