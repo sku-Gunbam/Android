@@ -167,7 +167,6 @@ public class BoardListAdapter extends RecyclerView.Adapter<BoardListAdapter.Main
                     // 결과 사용 예시
                     // count 값을 원하는 대로 활용하면 됩니다.
                     // 예: TextView에 출력하거나 다른 처리 수행
-                    System.out.println("Comment count for postId " + postId + ": " + commentCount);
                     tvCommentCount.setText("" + commentCount);
                 } else {
                     // 쿼리 실패 시 예외 처리

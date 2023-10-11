@@ -125,6 +125,10 @@ public class PostActivity extends BasicActivity {
         }
     }
 
+    private void countUpdate() {
+        countCommentsWithId(postInfo.getId(), tvCommentCount);
+        tvRecommendCount.setText("" + postInfo.getRecommend().size());
+    }
 
     private void uiUpdate(){
         if (postInfo != null && !TextUtils.isEmpty(postInfo.getTitle())) {
@@ -157,7 +161,6 @@ public class PostActivity extends BasicActivity {
         // Update UI or perform any necessary actions in response to the reply button click
         PostActivity.commentEditText.setHint("대댓글을 입력하세요.");
         PostActivity.parentCommentId = parentCommentId;
-        Log.e("테스트", "" + parentCommentId);
     }
 
     public static void countCommentsWithId(String postId, TextView tvCommentCount) {
@@ -208,13 +211,14 @@ public class PostActivity extends BasicActivity {
                     String commentContent = commentEditText.getText().toString();
                     String commentAuthor;
                     Timestamp commentUploadTime = Timestamp.now();
+                    ArrayList<String> recommend = new ArrayList<>();
 
                     boolean isAnonymous = anonymousCheckBox.isChecked(); // Get the state of the anonymous checkbox
 
                     commentAuthor = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     if (!TextUtils.isEmpty(commentContent)) {
-                        CommentInfo newComment = new CommentInfo(postId, commentContent, commentAuthor, isAnonymous, parentCommentId, commentUploadTime);
+                        CommentInfo newComment = new CommentInfo(postId, commentContent, commentAuthor, isAnonymous, parentCommentId, commentUploadTime, recommend);
 
                         CollectionReference commentsCollection = collection("comments");
                         commentsCollection.add(newComment)
@@ -223,7 +227,6 @@ public class PostActivity extends BasicActivity {
                                     public void onSuccess(DocumentReference documentReference) {
                                         showToast(PostActivity.this, "댓글이 작성되었습니다.");
                                         commentEditText.setText(""); // Clear the comment input
-                                        loadComments(postId);
 
                                         // Hide the keyboard
                                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -239,6 +242,8 @@ public class PostActivity extends BasicActivity {
                                         imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
                                     }
                                 });
+                        loadComments(postId);
+                        countUpdate();
                     } else {
                         showToast(PostActivity.this, "댓글을 입력해주세요.");
                     }
@@ -268,17 +273,16 @@ public class PostActivity extends BasicActivity {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         // 성공적으로 업데이트된 경우
-                                        Log.e(TAG, "추천 취소");
+                                        showToast(PostActivity.this, "추천 취소");
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         // 업데이트 실패 시 오류 메시지 출력
-                                        Log.e(TAG, "추천 업데이트 중 오류: " + e.getMessage());
+                                        showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
                                     }
                                 });
-                        loadComments(postInfo.getId());
                     } else {
                         // 추천 리스트에 사용자 추가
                         recommend.add(user);
@@ -294,18 +298,18 @@ public class PostActivity extends BasicActivity {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         // 성공적으로 업데이트된 경우
-                                        Log.e(TAG, "추천 완료");
+                                        showToast(PostActivity.this, "추천 완료");
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         // 업데이트 실패 시 오류 메시지 출력
-                                        Log.e(TAG, "추천 업데이트 중 오류: " + e.getMessage());
+                                        showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
                                     }
                                 });
-                        loadComments(postInfo.getId());
                     }
+                    countUpdate();
                 }
             }
         }
