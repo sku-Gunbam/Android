@@ -54,9 +54,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (comment.getParentCommentId() != null) {
             holder.reply_img.setVisibility(View.VISIBLE);
             holder.replyButton.setVisibility(View.GONE);
+            holder.commentContour.setVisibility(View.GONE);
         } else {
             holder.reply_img.setVisibility(View.GONE);
             holder.replyButton.setVisibility(View.VISIBLE);
+            holder.commentContour.setVisibility(View.VISIBLE);
         }
         // 댓글 답글 버튼 클릭 시 리스너 호출
         holder.replyButton.setOnClickListener(new View.OnClickListener() {
@@ -75,13 +77,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     public class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView commentContentTextView, commentAuthorTextView, commentUploadTimeTextView;
-        ImageView reply_img;
+        ImageView reply_img, commentContour;
         ImageButton replyButton;
         public CommentViewHolder(View itemView) {
             super(itemView);
             commentContentTextView = itemView.findViewById(R.id.commentContentTextView);
             commentAuthorTextView = itemView.findViewById(R.id.commentAuthorTextView);
             commentUploadTimeTextView = itemView.findViewById(R.id.commentUploadTimeTextView);
+            commentContour = itemView.findViewById(R.id.commentContour);
             reply_img = itemView.findViewById(R.id.reply_img);
             replyButton = itemView.findViewById(R.id.replyButton);
         }

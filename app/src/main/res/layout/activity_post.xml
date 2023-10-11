@@ -47,14 +47,71 @@
                 android:id="@+id/readContentsView"
                 android:padding="10dp"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/bullet_shape"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="0"
+                    android:textStyle="bold"
+                    android:textColor="@color/green"
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/tvRecommendCount"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_baseline_comment_24"
+                    android:layout_marginLeft="10dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="0"
+                    android:textStyle="bold"
+                    android:textColor="@color/green"
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/tvCommentCount"/>
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/bullet_shape"
+                        android:layout_gravity="center"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/recommendation"
+                        android:layout_marginLeft="3dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/commentListFragment"
                 android:name="military.gunbam.view.fragment.CommentListFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:layout = "@layout/fragment_comment"
-                android:layout_below = "@+id/mainAppTitleTextView"
-                android:layout_marginTop="10dp"/>
+                android:layout_below="@+id/mainAppTitleTextView"
+                android:layout_marginTop="10dp"
+                tools:layout="@layout/fragment_comment" />
+
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"/>
