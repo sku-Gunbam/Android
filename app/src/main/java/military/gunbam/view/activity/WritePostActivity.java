@@ -62,15 +62,15 @@ import java.util.List;
 import military.gunbam.R;
 import military.gunbam.model.Post.PostInfo;
 import military.gunbam.view.ContentsItemView;
+import military.gunbam.viewmodel.DeepLearningViewModel;
+import military.gunbam.viewmodel.DeepLearningViewModelFactory;
 import military.gunbam.viewmodel.WritePostViewModel;
 
 public class WritePostActivity extends AppCompatActivity {
 
     private WritePostViewModel writePostViewModel;
-
+    private DeepLearningViewModel deepLearningViewModel;
     private static final String TAG = "WritePostActivity";
-    private FirebaseUser user;
-    private StorageReference storageRef;
     private ArrayList<String> pathList = new ArrayList<>();
     private LinearLayout parent;
     private RelativeLayout buttonsBackgroundLayout;
@@ -80,11 +80,13 @@ public class WritePostActivity extends AppCompatActivity {
     private EditText contentsEditText;
     private EditText titleEditText;
     private PostInfo postInfo;
-    private int pathCount, successCount;
+    private int pathCount=0, successCount=0;
     private CheckBox anonymousCheckBox;
     private boolean isAnonymous = false;
     private ImageButton writePostBackButton;
-
+    private Bitmap bitmap;
+    private final ArrayList<String> contentsList = new ArrayList<>();
+    private final ArrayList<String> formatList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +104,14 @@ public class WritePostActivity extends AppCompatActivity {
         findViewById(R.id.image).setOnClickListener(onClickListener);
         findViewById(R.id.imageModify).setOnClickListener(onClickListener);
         findViewById(R.id.delete).setOnClickListener(onClickListener);
+
+
+        deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, "model2.tflite")).get(DeepLearningViewModel.class);
+        deepLearningViewModel = new DeepLearningViewModel(this, "model2.tflite");
+        // DeepLearning 결과
+        deepLearningViewModel.getResultBitmap().observe(this, result ->{
+            bitmap = result;
+        });
 
         writePostViewModel = new ViewModelProvider(this).get(WritePostViewModel.class);
 
@@ -128,11 +138,12 @@ public class WritePostActivity extends AppCompatActivity {
             writePostViewModel.setAnonymous(isAnonymous); // ViewModel에 변경된 데이터 업데이트
         });
 
+
         // 기존 코드 중 필요한 부분만 남기고 나머지는 삭제
         // ...
 
         // 편집 모드인 경우 데이터 로드 및 초기화
-        PostInfo postInfo = (PostInfo) getIntent().getSerializableExtra("postInfo");
+        postInfo = (PostInfo) getIntent().getSerializableExtra("postInfo");
         if (postInfo != null) {
             writePostViewModel.setTitle(postInfo.getTitle()); // ViewModel에 데이터 설정
             writePostViewModel.setContents(postInfo.getContents()); // ViewModel에 데이터 설정
@@ -191,7 +202,7 @@ public class WritePostActivity extends AppCompatActivity {
                     onBackPressed();
                     break;
                 case R.id.writePostButton:
-                    storageUpload();
+                    postUpload();
                     break;
                 case R.id.image:
                     myStartActivity(GalleryActivity.class, GALLERY_IMAGE, 0);
@@ -209,8 +220,7 @@ public class WritePostActivity extends AppCompatActivity {
                     final View selectedView = (View) selectedImageVIew.getParent();
                     String path = pathList.get(parent.indexOfChild(selectedView) - 1);
                     if(isStorageUrl(path)){
-                        StorageReference desertRef = storageRef.child("posts/" + postInfo.getId() + "/" + storageUrlToName(path));
-                        desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        deletePost(path, postInfo, new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 showToast(WritePostActivity.this, "파일을 삭제하였습니다.");
@@ -218,7 +228,7 @@ public class WritePostActivity extends AppCompatActivity {
                                 parent.removeView(selectedView);
                                 buttonsBackgroundLayout.setVisibility(View.GONE);
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
+                        }, new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 showToast(WritePostActivity.this, "파일을 삭제하는데 실패하였습니다.");
@@ -243,148 +253,65 @@ public class WritePostActivity extends AppCompatActivity {
         }
     };
 
-    private void storageUpload() {
+    private void postUpload(){
         final String title = ((EditText) findViewById(R.id.titleEditText)).getText().toString();
         if (title.length() > 0) {
-            int recommendationCount = 0;
-
+            final int recommendationCount = 0;
             String boardName = getIntent().getStringExtra("boardName");
-
             loaderLayout.setVisibility(View.VISIBLE);
-            final ArrayList<String> contentsList = new ArrayList<>();
-            final ArrayList<String> formatList = new ArrayList<>();
-            user = FirebaseAuth.getInstance().getCurrentUser();
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
-            FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-            final DocumentReference documentReference = postInfo == null ? firebaseFirestore.collection("posts").document() : firebaseFirestore.collection("posts").document(postInfo.getId());
+            if (postInfo == null) {
+                setDocumentReference("posts");
+            } else {
+                setDocumentReference("posts",postInfo.getId());
+            }
             final Date date = postInfo == null ? new Date() : postInfo.getCreatedAt();
 
             for (int i = 0; i < parent.getChildCount(); i++) {
                 LinearLayout linearLayout = (LinearLayout) parent.getChildAt(i);
-                for (int ii = 0; ii < linearLayout.getChildCount(); ii++) {
-                    View view = linearLayout.getChildAt(ii);
+                for (int j = 0; j < linearLayout.getChildCount(); j++) {
+                    View view = linearLayout.getChildAt(j);
                     if (view instanceof EditText) {
                         String text = ((EditText) view).getText().toString();
                         if (text.length() > 0) {
                             contentsList.add(text);
                             formatList.add("text");
-                        }
-                    } else if (!isStorageUrl(pathList.get(pathCount))) {
-                        String path = pathList.get(pathCount);
-                        successCount++;
-                        contentsList.add(path);
-                        if(isImageFile(path)){
-                            formatList.add("image");
+                        } else if (!isStorageUrl(pathList.get(pathCount))) {
+                            String path = pathList.get(pathCount);
+                            successCount++;
+                            contentsList.add(path);
 
-                            // 이미지 파일을 비트맵으로 디코딩
-                            Bitmap bitmap = decodeImageFile(path);
+                            if (isImageFile(path)) {
+                                formatList.add("image");
+                                processImage(path, contentsList, formatList,title, date, boardName, new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommendationCount,boardName));
+                            }
+                            processText(path, contentsList, formatList,new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommendationCount,boardName)); //
 
-                            Log.e(TAG,"" + bitmap);
-                            bitmap = deepLearing(bitmap);
-                            // TODO: bitmap을 사용하여 원하는 작업 수행
-
-                            // 비트맵을 ByteArrayOutputStream에 압축하여 byte 배열로 변환
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                            byte[] data = baos.toByteArray();
-
-                            // Firebase Storage에 업로드
-                            StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + ".jpg");
-                            UploadTask uploadTask = mountainImagesRef.putBytes(data);
-                            uploadTask.addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    // 실패 처리
-                                }
-                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    // 성공 처리
-                                    final int index = Integer.parseInt(taskSnapshot.getMetadata().getCustomMetadata("index"));
-                                    mountainImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            successCount--;
-                                            contentsList.set(index, uri.toString());
-                                            if (successCount == 0) {
-                                                PostInfo postInfo = new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
-                                                storeUpload(documentReference, postInfo);
-                                            }
-                                        }
-                                    });
-                                }
-                            });
                         } else {
                             formatList.add("text");
                         }
-                        String[] pathArray = path.split("\\.");
-                        final StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + "." + pathArray[pathArray.length - 1]);
-                        try {
-                            InputStream stream = new FileInputStream(new File(pathList.get(pathCount)));
-                            StorageMetadata metadata = new StorageMetadata.Builder().setCustomMetadata("index", "" + (contentsList.size() - 1)).build();
-                            UploadTask uploadTask = mountainImagesRef.putStream(stream, metadata);
-                            uploadTask.addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                }
-                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    final int index = Integer.parseInt(taskSnapshot.getMetadata().getCustomMetadata("index"));
-                                    mountainImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            successCount--;
-                                            contentsList.set(index, uri.toString());
-                                            if (successCount == 0) {
-                                                PostInfo postInfo = new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
-                                                storeUpload(documentReference, postInfo);
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-                        } catch (FileNotFoundException e) {
-                            Log.e("로그", "에러: " + e.toString());
-                        }
-                        pathCount++;
+
+
                     }
                 }
             }
-            // ViewModel에 데이터 업데이트
             writePostViewModel.setTitle(title);
             writePostViewModel.setContents(contentsList);
             writePostViewModel.setAnonymous(isAnonymous);
 
-            if (successCount == 0) {
-                storeUpload(documentReference, new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName));
+            if(successCount==0){
+                storeUpload(new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommendationCount,boardName));
             }
-        } else {
+
+
+        } else{
             showToast(WritePostActivity.this, "제목을 입력해주세요.");
         }
     }
+    private void storageUpload(){
 
-    private void storeUpload(DocumentReference documentReference, final PostInfo postInfo) {
-        documentReference.set(postInfo.getPostInfo())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                        loaderLayout.setVisibility(View.GONE);
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("postinfo", postInfo);
-                        setResult(Activity.RESULT_OK, resultIntent);
-                        finish();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
-                        loaderLayout.setVisibility(View.GONE);
-                    }
-                });
+    }
+    private void storeUpload(final PostInfo postInfo) {
+        writePostViewModel.storeUpload(postInfo);
     }
 
     private Bitmap decodeImageFile(String filePath) {
@@ -398,143 +325,57 @@ public class WritePostActivity extends AppCompatActivity {
         intent.putExtra(INTENT_MEDIA, media);
         startActivityForResult(intent, requestCode);
     }
-
-    private String[] labels = {"CAR_NUM", "RANK", "MARK", "KOREA", "NAME"};
-    private static final int WIDTH = 320;
-    private static final int HEIGHT = 320;
-    private static final int CHANNELS = 3;
-
-    private ObjectDetector objectDetector;
-    private ObjectDetector.ObjectDetectorOptions options;
-    private ObjectDetectorResult detectionResult;
-    private ImageView deepLearningImageView;
-    private Bitmap processedBitmap, originalBitmap;
-
-    public Bitmap deepLearing(Bitmap bitmap) {
-        originalBitmap = bitmap;
-        Log.d("이미지뷰",originalBitmap.getWidth() + " " + originalBitmap.getHeight());
-
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, WIDTH, HEIGHT, true);
-
-        int[] intValues = new int[WIDTH * HEIGHT];
-        resizedBitmap.getPixels(intValues, 0, resizedBitmap.getWidth(), 0, 0, resizedBitmap.getWidth(), resizedBitmap.getHeight());
-
-        float[] floatValues = new float[WIDTH * HEIGHT * CHANNELS];
-        for (int i = 0; i < intValues.length; ++i) {
-            final int val = intValues[i];
-            floatValues[i * 3] = ((val >> 16) & 0xFF) ;
-            floatValues[i * 3 + 1] = ((val >> 8) & 0xFF) ;
-            floatValues[i * 3 + 2] = (val & 0xFF);
-        }
-
-        byte[][][][] inputArray = new byte[1][HEIGHT][WIDTH][CHANNELS];
-        for (int i = 0; i < HEIGHT; ++i) {
-            for (int j = 0; j < WIDTH; ++j) {
-                for (int c = 0; c < CHANNELS; ++c) {
-                    inputArray[0][i][j][c] = (byte)floatValues[(i * WIDTH + j) * CHANNELS + c];
-                }
-            }
-        }
-
-        MPImage mpImage = new BitmapImageBuilder(originalBitmap).build();
-        ObjectDetectorResult detectionResult = objectDetector.detect(mpImage);
-
-        processedBitmap = originalBitmap;
-
-        OutputHandler.PureResultListener<ObjectDetectorResult> listener = new OutputHandler.PureResultListener<ObjectDetectorResult>() {
-            @Override
-            public void run(ObjectDetectorResult result) {
-
-                long timestampMs = result.timestampMs();
-                System.out.println("결과값 출력");
-                System.out.println("timestampMs: " + Long.toString(result.timestampMs()));
-                List<Detection> detections = result.detections();
-                for(Detection detection : detections){
-                    RectF bbox = detection.boundingBox();
-
-                    //System.out.println("bbox.bottom: " +bbox.bottom);
-                    //System.out.println("bbox.left: " +bbox.left);
-                    //System.out.println("bbox.right: " +bbox.right);
-                    //System.out.println("bbox.top: " +bbox.top);
-
-                    List<Category> category = detection.categories();
-
-                    for(Category cat : detection.categories() ){
-                        String catName = cat.categoryName();
-                        String displayName = cat.displayName();
-                        float catScore = cat.score();
-                        int index = cat.index();
-                        //System.out.println("catName: " + catName);
-                        //System.out.println("displayName: " + displayName);
-                        //System.out.println("catScore: " + catScore);
-                        //System.out.println("index: " + Integer.toString(index));
-
-                        if (catScore >= 0.6) {
-                            // 이미지에 바운딩 박스 및 정보를 그리고 수정된 비트맵을 얻습니다.
-                            processedBitmap = mosaicBoundingBoxOnBitmap(originalBitmap, bbox, catName, catScore);
-                            System.out.println("catName: " + catName);
-                            System.out.println("catScore: " + catScore);
-                        }
-                    }
-                }
-            }
-        };
-
-        listener.run(detectionResult);
-        Log.d("이미지뷰",processedBitmap.getWidth() + "*" + processedBitmap.getHeight());
-        return processedBitmap ;
+    public void setDocumentReference(String collectionPath, String documentID){
+        writePostViewModel.setDocumentReference(collectionPath, documentID);
     }
-
-    public Bitmap mosaicBoundingBoxOnBitmap(Bitmap bitmap, RectF bbox, String catName, float catScore) {
-        // Create a mutable copy of the input bitmap to work on
-        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-
-        // Create a Canvas object to draw on the mutable bitmap
-        Canvas canvas = new Canvas(mutableBitmap);
-
-        // Define the paint for drawing the bounding box
-        Paint paint = new Paint();
-        paint.setColor(Color.RED); // You can choose any color you like
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(3); // Adjust the width of the bounding box lines
-
-        // Draw the bounding box on the Canvas
-        // canvas.drawRect(bbox, paint);
-
-        // Get the bounding box coordinates
-        int left = Math.max(0, (int) bbox.left);
-        int top = Math.max(0, (int) bbox.top);
-        int right = Math.min(bitmap.getWidth(), (int) bbox.right);
-        int bottom = Math.min(bitmap.getHeight(), (int) bbox.bottom);
-
-        // Define the size of the mosaic pixels (adjust as needed)
-        int mosaicSize = 100;
-
-        // Loop through the bounding box region and apply mosaic effect
-        for (int y = top; y < bottom; y += mosaicSize) {
-            for (int x = left; x < right; x += mosaicSize) {
-                int color = mutableBitmap.getPixel(x, y);
-                for (int mosaicY = y; mosaicY < y + mosaicSize && mosaicY < bottom; mosaicY++) {
-                    for (int mosaicX = x; mosaicX < x + mosaicSize && mosaicX < right; mosaicX++) {
-                        mutableBitmap.setPixel(mosaicX, mosaicY, color);
-                    }
-                }
+    public void setDocumentReference(String collectionPath){
+        writePostViewModel.setDocumentReference(collectionPath);
+    }
+    private void processText(String path, ArrayList<String> contentsList, ArrayList<String> formatList, PostInfo postInfo) {
+        writePostViewModel.processText(path, pathList, contentsList, formatList, postInfo, new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                processSuccess();
             }
-        }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                processFailure();
+            }
+        });
+    }
+    private void processImage(String path, ArrayList<String> contentsList, ArrayList<String> formatList, String title,  Date date, String boardName,PostInfo postInfo) {
+        Bitmap bitmap = decodeImageFile(path);
+        deepLearningViewModel.run(bitmap);
 
-        // Define the paint for drawing text (e.g., category name and score)
-        Paint textPaint = new Paint();
-        textPaint.setColor(Color.RED); // You can choose a text color
-        textPaint.setTextSize(100); // Adjust the text size
-
-        // Calculate the position to draw the text
-        float textX = bbox.left;
-        float textY = bbox.bottom + 20; // Adjust the vertical position
-
-        // Draw the category name and score
-        // canvas.drawText("Category: " + catName, textX, textY, textPaint);
-        // canvas.drawText("Score: " + catScore, textX, textY + 100, textPaint); // Adjust vertical spacing
-
-        return mutableBitmap; // Return the bitmap with bounding box and mosaic effect
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+        writePostViewModel.uploadImage(contentsList, data, postInfo, new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid){
+                processSuccess();
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                processFailure();
+            }
+        });
+    }
+    private void deletePost(String path, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener){
+        writePostViewModel.deletePost(path, postInfo, voidOnSuccessListener, onFailureListener);
+    }
+    private void processSuccess(){
+        Log.d(TAG, "DocumentSnapshot successfully written!");
+        loaderLayout.setVisibility(View.GONE);
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("postinfo", postInfo);
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();
+    }
+    private void processFailure(){
+        Log.d(TAG, "Error writing document");
+        loaderLayout.setVisibility(View.GONE);
     }
 }
