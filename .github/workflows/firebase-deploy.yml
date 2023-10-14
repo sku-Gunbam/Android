@@ -1,0 +1,69 @@
+name: Android Deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v2.3.0
+        with:
+        cmd: install --production # will run `yarn install` command
+
+       - name: Create variables
+        id: vars
+        run: |
+          branch=${GITHUB_REF##*/}
+          echo "::set-output name=PROJECT_ID::service-name-main" 
+          echo "::set-output name=BUILD_SCRIPT::build:Feature/31-firebase-배포자동화"
+
+      - name: Build
+        uses: borales/actions-yarn@v2.3.0
+        with:
+          cmd: ${{ steps.vars.outputs.BUILD_SCRIPT }}
+
+      - name: Deploy
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
+        env:
+          CI: true
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: ${{ steps.vars.outputs.PROJECT_ID }}
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: "11"
+
+      - name: Build AAB
+        run: ./gradlew bundleRelease
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: app/build/outputs/bundle/release/app-release.aab
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    steps:
+      - name: Download AAB
+        uses: actions/download-artifact@v2
+        with:
+          name: app-release
+          path: app-release
+
+      - name: Deploy to Firebase App Distribution
+        run: firebase appdistribution:distribute app-release/app-release.aab --app ${{ secrets.FIREBASE_APP_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
