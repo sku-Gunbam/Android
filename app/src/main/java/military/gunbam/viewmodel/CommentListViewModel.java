@@ -47,6 +47,7 @@ public class CommentListViewModel extends ViewModel {
                         if (task.isSuccessful()) {
                             commentList.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
+                                ArrayList<String> recommend = (ArrayList<String>) document.get("recommend");
                                 String commentId = document.getId();
                                 String commentContent = document.getString("commentContent");
                                 String commentAuthor = document.getString("commentAuthor");
@@ -68,9 +69,9 @@ public class CommentListViewModel extends ViewModel {
                                                     CommentInfo commentInfo;
                                                     if (commentIsAnonymous) {
                                                         nickName = "익명";
-                                                        commentInfo = new CommentInfo(commentId, commentContent, nickName, commentIsAnonymous, parentCommentId, commentUploadTime);
+                                                        commentInfo = new CommentInfo(commentId, commentContent, nickName, commentIsAnonymous, parentCommentId, commentUploadTime, recommend, id);
                                                     } else {
-                                                        commentInfo = new CommentInfo(commentId, commentContent, nickName, commentIsAnonymous, parentCommentId, commentUploadTime);
+                                                        commentInfo = new CommentInfo(commentId, commentContent, nickName, commentIsAnonymous, parentCommentId, commentUploadTime, recommend, id);
                                                     }
 
                                                     // Find the correct position to insert the comment based on parentCommentId

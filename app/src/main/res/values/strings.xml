@@ -37,7 +37,7 @@
     <string name="gap">|</string>
     <string name="content">내용</string>
     <string name="post_title">게시물 제목</string>
-    <string name="recommendation">추천 수 : 0</string>
+    <string name="recommendation">추천</string>
     <string name="board_1">자유게시판</string>
     <string name="board_2">군인게시판</string>
     <string name="board_3">비밀게시판</string>
@@ -49,7 +49,7 @@
     <string name="recommend">추천</string>
     <string name="please_grant_permission">권한을 허용해 주세요.</string>
     <string name="admin">관리자</string>
-    <string name="admin_menu_1">테스트 게시물 10개 작성</string>
+    <string name="admin_menu_1">테스트 게시물 작성</string>
     <string name="admin_menu_2">엑티비티 테스트</string>
     <string name="admin_menu_3">딥러닝 테스트</string>
     <string name="admin_menu_4">키 해시</string>

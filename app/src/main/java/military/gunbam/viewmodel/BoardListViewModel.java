@@ -108,7 +108,7 @@ public class BoardListViewModel extends ViewModel {
                                     document.getData().get("publisher").toString(),
                                     new Date(document.getDate("createdAt").getTime()),
                                     Boolean.parseBoolean(document.getData().get("isAnonymous").toString()),
-                                    Integer.parseInt(document.getData().get("recommendationCount").toString()),
+                                    (ArrayList<String>) document.getData().get("recommend"),
                                     document.getData().get("boardName").toString(),
                                     document.getId()
                             ));

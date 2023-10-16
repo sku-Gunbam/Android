@@ -19,14 +19,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
@@ -41,12 +47,13 @@ import military.gunbam.viewmodel.PostViewModelFactory;
 public class PostActivity extends BasicActivity {
     private PostInfo postInfo;
 
+    private CardView cardView_recommend;
     private ReadContentsView readContentsVIew;
     private LinearLayout contentsLayout;
     private static EditText commentEditText;
     private ImageButton postCommentButton;
     private CheckBox anonymousCheckBox;
-    private TextView titleTextView, boardNameTextView;
+    private TextView titleTextView, boardNameTextView, tvCommentCount, tvRecommendCount;
 
     private PostViewModel postViewModel;
     private ArrayList<PostInfo> postList;
@@ -67,11 +74,14 @@ public class PostActivity extends BasicActivity {
 
         findViewById(R.id.viewPostBackButton).setOnClickListener(onClickListener);
         findViewById(R.id.postCommentButton).setOnClickListener(onClickListener);
+        findViewById(R.id.cardView_recommend).setOnClickListener(onClickListener);
 
         commentEditText = findViewById(R.id.commentEditText);
         anonymousCheckBox = findViewById(R.id.commentAnonymousCheckBox);
         titleTextView = findViewById(R.id.titleTextView);
         boardNameTextView = findViewById(R.id.boardNameTextView);
+        tvCommentCount = findViewById(R.id.tvCommentCount);
+        tvRecommendCount = findViewById(R.id.tvRecommendCount);
 
         uiUpdate();
 
@@ -115,12 +125,19 @@ public class PostActivity extends BasicActivity {
         }
     }
 
+    private void countUpdate() {
+        countCommentsWithId(postInfo.getId(), tvCommentCount);
+        tvRecommendCount.setText("" + postInfo.getRecommend().size());
+    }
 
     private void uiUpdate(){
         if (postInfo != null && !TextUtils.isEmpty(postInfo.getTitle())) {
             titleTextView.setText(postInfo.getTitle());
             boardNameTextView.setText(postInfo.getBoardName());
             readContentsVIew.setPostInfo(postInfo);
+            countCommentsWithId(postInfo.getId(), tvCommentCount);
+            tvRecommendCount.setText("" + postInfo.getRecommend().size());
+
         } else {
             showToast(PostActivity.this, "게시물을 불러오지 못하였습니다.");
             finish();
@@ -144,9 +161,41 @@ public class PostActivity extends BasicActivity {
         // Update UI or perform any necessary actions in response to the reply button click
         PostActivity.commentEditText.setHint("대댓글을 입력하세요.");
         PostActivity.parentCommentId = parentCommentId;
-        Log.e("테스트", "" + parentCommentId);
     }
 
+    public static void countCommentsWithId(String postId, TextView tvCommentCount) {
+        // Firestore 인스턴스 얻기
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 'comments' 컬렉션 참조
+        CollectionReference commentsRef = db.collection("comments");
+
+        // postInfo.getId()와 같은 commentId를 가진 문서를 찾기 위한 쿼리
+        Query query = commentsRef.whereEqualTo("commentId", postId);
+
+        // 쿼리 실행
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // 쿼리 결과로부터 문서 개수 가져오기
+                    int commentCount = task.getResult().size();
+
+                    // 결과 사용 예시
+                    // count 값을 원하는 대로 활용하면 됩니다.
+                    // 예: TextView에 출력하거나 다른 처리 수행
+                    System.out.println("Comment count for postId " + postId + ": " + commentCount);
+                    tvCommentCount.setText("" + commentCount);
+                } else {
+                    // 쿼리 실패 시 예외 처리
+                    Exception e = task.getException();
+                    if (e != null) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -162,13 +211,14 @@ public class PostActivity extends BasicActivity {
                     String commentContent = commentEditText.getText().toString();
                     String commentAuthor;
                     Timestamp commentUploadTime = Timestamp.now();
+                    ArrayList<String> recommend = new ArrayList<>();
 
                     boolean isAnonymous = anonymousCheckBox.isChecked(); // Get the state of the anonymous checkbox
 
                     commentAuthor = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     if (!TextUtils.isEmpty(commentContent)) {
-                        CommentInfo newComment = new CommentInfo(postId, commentContent, commentAuthor, isAnonymous, parentCommentId, commentUploadTime);
+                        CommentInfo newComment = new CommentInfo(postId, commentContent, commentAuthor, isAnonymous, parentCommentId, commentUploadTime, recommend);
 
                         CollectionReference commentsCollection = collection("comments");
                         commentsCollection.add(newComment)
@@ -177,7 +227,6 @@ public class PostActivity extends BasicActivity {
                                     public void onSuccess(DocumentReference documentReference) {
                                         showToast(PostActivity.this, "댓글이 작성되었습니다.");
                                         commentEditText.setText(""); // Clear the comment input
-                                        loadComments(postId);
 
                                         // Hide the keyboard
                                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -193,6 +242,8 @@ public class PostActivity extends BasicActivity {
                                         imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
                                     }
                                 });
+                        loadComments(postId);
+                        countUpdate();
                     } else {
                         showToast(PostActivity.this, "댓글을 입력해주세요.");
                     }
@@ -200,6 +251,65 @@ public class PostActivity extends BasicActivity {
                     parentCommentId = null;
                     commentEditText.setHint("댓글을 입력하세요.");
                     break;
+                }
+
+                case R.id.cardView_recommend: {
+                    String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    ArrayList<String> recommend = postInfo.getRecommend();
+
+                    // 이미 추천한 경우
+                    if (recommend.contains(user)) {
+                        // 추천 리스트에서 사용자 삭제
+                        recommend.remove(user);
+
+                        // Firebase Firestore 참조
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                        // posts 컬렉션에서 해당 문서의 recommend 필드 업데이트
+                        db.collection("posts")
+                                .document(postInfo.getId())
+                                .update("recommend", recommend)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        // 성공적으로 업데이트된 경우
+                                        showToast(PostActivity.this, "추천 취소");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // 업데이트 실패 시 오류 메시지 출력
+                                        showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
+                                    }
+                                });
+                    } else {
+                        // 추천 리스트에 사용자 추가
+                        recommend.add(user);
+
+                        // Firebase Firestore 참조
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                        // posts 컬렉션에서 해당 문서의 recommend 필드 업데이트
+                        db.collection("posts")
+                                .document(postInfo.getId())
+                                .update("recommend", recommend)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        // 성공적으로 업데이트된 경우
+                                        showToast(PostActivity.this, "추천 완료");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // 업데이트 실패 시 오류 메시지 출력
+                                        showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
+                                    }
+                                });
+                    }
+                    countUpdate();
                 }
             }
         }

@@ -6,22 +6,30 @@ plugins {
 }
 android {
     namespace 'military.gunbam'
-    compileSdk 32
+    compileSdk 33
+    ndkVersion '22.1.7171670'
 
     defaultConfig {
         applicationId "military.gunbam"
         minSdk 24
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
+
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         release {
-            minifyEnabled false
+            shrinkResources true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
         }
     }
     compileOptions {
@@ -30,6 +38,10 @@ android {
     }
     dataBinding{
         enabled = true
+    }
+
+    packagingOptions {
+        exclude 'lib/x86/libmediapipe_tasks_vision_jni.so'
     }
 }
 

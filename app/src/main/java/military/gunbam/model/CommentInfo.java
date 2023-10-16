@@ -2,6 +2,8 @@ package military.gunbam.model;
 
 import com.google.firebase.Timestamp;
 
+import java.util.ArrayList;
+
 public class CommentInfo {
     private String commentId;
     private String commentContent;
@@ -9,6 +11,8 @@ public class CommentInfo {
     private boolean commentIsAnonymous;
     private String parentCommentId;
     private Timestamp commentUploadTime;
+    private ArrayList<String> recommend;
+    private String id;
 
     /**
      * 생성자 메서드: CommentInfo 객체를 생성하는 역할을 수행합니다.
@@ -20,20 +24,24 @@ public class CommentInfo {
      * @param parentCommentId  부모 댓글의 식별자 정보 (대댓글의 경우)
      * @param commentUploadTime 댓글 업로드 시간 정보
      */
-    public CommentInfo(String commentId, String commentContent, String commentAuthor, boolean commentIsAnonymous, String parentCommentId, Timestamp commentUploadTime) {
+    public CommentInfo(String commentId, String commentContent, String commentAuthor, boolean commentIsAnonymous, String parentCommentId, Timestamp commentUploadTime, ArrayList<String> recommend, String id) {
         this.commentId = commentId;
         this.commentContent = commentContent;
         this.commentAuthor = commentAuthor;
         this.commentIsAnonymous = commentIsAnonymous;
         this.parentCommentId = parentCommentId;
         this.commentUploadTime = commentUploadTime;
+        this.recommend = recommend;
+        this.id = id;
     }
-    public CommentInfo(String commentId, String commentContent, String commentAuthor, boolean commentIsAnonymous, Timestamp commentUploadTime) {
+    public CommentInfo(String commentId, String commentContent, String commentAuthor, boolean commentIsAnonymous, String parentCommentId, Timestamp commentUploadTime, ArrayList<String> recommend) {
         this.commentId = commentId;
         this.commentContent = commentContent;
         this.commentAuthor = commentAuthor;
         this.commentIsAnonymous = commentIsAnonymous;
         this.commentUploadTime = commentUploadTime;
+        this.recommend = recommend;
+        this.parentCommentId = parentCommentId;
     }
 
     public String getCommentId() {
@@ -83,4 +91,10 @@ public class CommentInfo {
     public void setCommentUploadTime(Timestamp commentUploadTime) {
         this.commentUploadTime = commentUploadTime;
     }
+
+    public ArrayList<String> getRecommend() { return this.recommend; }
+    public void setRecommend(ArrayList<String> recommend) { this.recommend = recommend; }
+
+    public String getId() { return this.id; }
+    public void setId(String id) { this.id = id; }
 }
