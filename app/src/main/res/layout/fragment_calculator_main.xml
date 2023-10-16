@@ -100,7 +100,7 @@
                     android:inputType="number"
                     android:hint="D-DAY"
                     android:textStyle="bold"
-                    android:layout_gravity="center"/>
+                    android:gravity="center"/>
 
                 <ImageView
                     android:id="@+id/account_discharge_img"

@@ -92,6 +92,7 @@ public class MainActivity extends BasicActivity {
                         if (!checkPermissions()) {
                             // 권한이 없는 경우 권한 요청
                             requestPermissions();
+                            selectedFragment = kakaoMapFragment;
                         } else {
                             // 권한이 있는 경우 해당 권한이 필요한 작업 수행
                             if (kakaoMapFragment == null) {

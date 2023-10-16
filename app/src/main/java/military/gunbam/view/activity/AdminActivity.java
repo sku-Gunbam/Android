@@ -58,9 +58,9 @@ public class AdminActivity extends BasicActivity {
                             // 테스트 게시물 5개씩 작성합니다.
                             for (int i = 0; i < 5; i++) {
                                 // 게시물 데이터 생성
-                                String title = "테스트 게시물 " + (i + 1);
+                                String title = "테스트 " + boardName + "_" + (i + 1);
                                 Date date = new Date();
-                                int recommendationCount = i;
+                                ArrayList<String> recommend = new ArrayList<>();
                                 Boolean isAnonymous;
                                 if (i % 2 == 1) {
                                     isAnonymous = true;
@@ -92,7 +92,7 @@ public class AdminActivity extends BasicActivity {
                                 postMap.put("publisher", userUid);
                                 postMap.put("createdAt", date);
                                 postMap.put("isAnonymous", isAnonymous);
-                                postMap.put("recommendationCount", recommendationCount);
+                                postMap.put("recommend", recommend);
                                 postMap.put("boardName", boardName);
 
                                 // 게시물 Firestore에 추가
