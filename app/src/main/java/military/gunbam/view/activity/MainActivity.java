@@ -14,7 +14,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import military.gunbam.R;
 import military.gunbam.utils.Util;
@@ -27,6 +34,11 @@ import military.gunbam.viewmodel.MainViewModel;
 
 public class MainActivity extends BasicActivity {
     // 마지막으로 뒤로 가기 버튼을 눌렀던 시간 저장
+    String TAG = "MainActivity";
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();;
+    private FirebaseAuth auth = FirebaseAuth.getInstance();
+
     private long backKeyPressedTime = 0;
 
     private MainViewModel mainViewModel;
@@ -49,23 +61,27 @@ public class MainActivity extends BasicActivity {
                     mainViewModel.getUserHasInfo().observe(MainActivity.this, new Observer<Boolean>() {
                         @Override
                         public void onChanged(Boolean userHasInfo) {
-                            if (userHasInfo) {
-
-                                // 사용자가 로그인하고 회원 정보가 있는 경우, 홈 화면으로 이동합니다.
-                                // 초기 화면을 HomeFragment로 설정
-                                getSupportFragmentManager().beginTransaction()
-                                        .replace(R.id.container, new HomeFragment())
-                                        .commit();
-                            } else {
-                                // 사용자가 로그인하고 회원 정보가 없는 경우, MemberInitActivity로 이동합니다.
-                                startActivity(MemberInitActivity.class);
-                                finish();
-                            }
+                            checkIfUserDocumentExists(new OnResultCallback<Boolean>() {
+                                @Override
+                                public void onCallback(Boolean result) {
+                                    // result 값에 따라서 문서의 존재 여부에 대한 처리를 수행
+                                    if (result) {
+                                        // 사용자가 로그인하고 회원 정보가 있는 경우, 홈 화면으로 이동합니다.
+                                        // 초기 화면을 HomeFragment로 설정
+                                        getSupportFragmentManager().beginTransaction()
+                                                .replace(R.id.container, new HomeFragment())
+                                                .commit();
+                                        System.out.println("문서가 존재합니다.");
+                                    } else {
+                                        System.out.println("문서가 존재하지 않습니다.");
+                                        // 사용자가 로그인하고 회원 정보가 없는 경우, MemberInitActivity로 이동합니다.
+                                        startActivity(MemberInitActivity.class);
+                                        finish();
+                                    }
+                                }
+                            });
                         }
                     });
-                } else {
-                    // 사용자가 로그인하지 않은 경우, LoginActivity로 이동합니다.
-                    startActivity(LoginActivity.class);
                 }
             }
         });
@@ -134,6 +150,41 @@ public class MainActivity extends BasicActivity {
                     PERMISSION_REQUEST_CODE
             );
         }
+    }
+
+    // users 컬렉션에서 현재 사용자의 UID에 해당하는 문서가 있는지 여부를 확인하는 함수
+    public void checkIfUserDocumentExists(final OnResultCallback<Boolean> callback) {
+
+        // 현재 사용자의 UID 가져오기
+        String uid = auth.getCurrentUser().getUid();
+
+        // 해당 UID에 대한 문서 참조
+        DocumentReference userDocumentRef = db.collection("users").document(uid);
+
+        // 문서 존재 여부 확인
+        userDocumentRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        // 문서가 존재함
+                        callback.onCallback(true);
+                    } else {
+                        // 문서가 존재하지 않음
+                        callback.onCallback(false);
+                    }
+                } else {
+                    // 오류 발생
+                    callback.onCallback(false);
+                }
+            }
+        });
+    }
+
+    // 결과를 처리하기 위한 콜백 인터페이스
+    public interface OnResultCallback<T> {
+        void onCallback(T result);
     }
 
     @Override
