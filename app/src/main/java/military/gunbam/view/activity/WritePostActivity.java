@@ -18,6 +18,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -109,6 +110,9 @@ public class WritePostActivity extends AppCompatActivity {
 
         deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, modelPath)).get(DeepLearningViewModel.class);
         deepLearningViewModel = new DeepLearningViewModel(this, modelPath);
+
+
+
         // DeepLearning 결과
         deepLearningViewModel.getResultBitmap().observe(this, result ->{
             //selectedImageVIew = result;
@@ -116,7 +120,8 @@ public class WritePostActivity extends AppCompatActivity {
 
             byte[] imageBytes = Base64.decode(result.toString(), Base64.DEFAULT);
             Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-            selectedImageVIew.setImageBitmap(decodedImage);
+
+            //selectedImageVIew.setImageBitmap(decodedImage);
 
         });
 
@@ -167,6 +172,7 @@ public class WritePostActivity extends AppCompatActivity {
                     pathList.add(path);
 
                     ContentsItemView contentsItemView = new ContentsItemView(this);
+                    contentsItemView.setDeepLearningViewModel(deepLearningViewModel);
 
                     if (selectedEditText == null) {
                         parent.addView(contentsItemView);
@@ -263,7 +269,7 @@ public class WritePostActivity extends AppCompatActivity {
     private void postUpload(){
         final String title = ((EditText) findViewById(R.id.titleEditText)).getText().toString();
         if (title.length() > 0) {
-            final int recommendationCount = 0;
+            ArrayList<String> recommend = new ArrayList<>();
             String boardName = getIntent().getStringExtra("boardName");
             Log.d("테스트 boardName",boardName);
             loaderLayout.setVisibility(View.VISIBLE);
@@ -290,9 +296,9 @@ public class WritePostActivity extends AppCompatActivity {
 
                             if (isImageFile(path)) {
                                 formatList.add("image");
-                                processImage(path, contentsList, formatList,title, date, boardName, new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommendationCount,boardName));
+                                processImage(path, contentsList, formatList,title, date, boardName, new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommend,boardName));
                             }
-                            processText(path, contentsList, formatList,new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommendationCount,boardName)); //
+                            processText(path, contentsList, formatList,new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommend,boardName)); //
 
                         } else {
                             formatList.add("text");
@@ -307,7 +313,7 @@ public class WritePostActivity extends AppCompatActivity {
             writePostViewModel.setAnonymous(isAnonymous);
 
             if(successCount==0){
-                storeUpload(new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommendationCount,boardName));
+                storeUpload(new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommend,boardName));
             }
 
 
