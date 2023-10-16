@@ -2,6 +2,7 @@ package military.gunbam.view.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,6 +16,8 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -31,6 +34,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
     private Activity activity;
     private FirebaseHelper firebaseHelper;
     private final int MORE_INDEX = 2;
+    String TAG = "HomeAdapter";
 
     static class MainViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -95,6 +99,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
 
         ReadContentsView readContentsVIew = cardView.findViewById(R.id.readContentsView);
         LinearLayout contentsLayout = cardView.findViewById(R.id.contentsLayout);
+
+        if (mDataset.get(holder.getAdapterPosition()).getPublisher().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            cardView.findViewById(R.id.menu).setVisibility(View.VISIBLE);
+        } else {
+            cardView.findViewById(R.id.menu).setVisibility(View.GONE);
+        }
 
         if (contentsLayout.getTag() == null || !contentsLayout.getTag().equals(postInfo)) {
             contentsLayout.setTag(postInfo);
