@@ -18,6 +18,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -50,6 +51,7 @@ import com.google.mediapipe.tasks.core.OutputHandler;
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetector;
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectorResult;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,6 +89,7 @@ public class WritePostActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private final ArrayList<String> contentsList = new ArrayList<>();
     private final ArrayList<String> formatList = new ArrayList<>();
+    private static final String modelPath = "model2.tflite";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,11 +109,17 @@ public class WritePostActivity extends AppCompatActivity {
         findViewById(R.id.delete).setOnClickListener(onClickListener);
 
 
-        deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, "model2.tflite")).get(DeepLearningViewModel.class);
-        deepLearningViewModel = new DeepLearningViewModel(this, "model2.tflite");
+        deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, modelPath)).get(DeepLearningViewModel.class);
+        deepLearningViewModel = new DeepLearningViewModel(this, modelPath);
         // DeepLearning 결과
         deepLearningViewModel.getResultBitmap().observe(this, result ->{
-            bitmap = result;
+            //selectedImageVIew = result;
+
+
+            byte[] imageBytes = Base64.decode(result.toString(), Base64.DEFAULT);
+            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            selectedImageVIew.setImageBitmap(decodedImage);
+
         });
 
         writePostViewModel = new ViewModelProvider(this).get(WritePostViewModel.class);
@@ -258,6 +267,7 @@ public class WritePostActivity extends AppCompatActivity {
         if (title.length() > 0) {
             final int recommendationCount = 0;
             String boardName = getIntent().getStringExtra("boardName");
+            Log.d("테스트 boardName",boardName);
             loaderLayout.setVisibility(View.VISIBLE);
             if (postInfo == null) {
                 setDocumentReference("posts");
