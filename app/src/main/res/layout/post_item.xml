@@ -31,7 +31,8 @@
                 android:id="@+id/menu"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                app:cardCornerRadius="15dp">
+                app:cardCornerRadius="15dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/imageView2"
