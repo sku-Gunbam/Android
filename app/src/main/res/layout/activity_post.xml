@@ -4,34 +4,35 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/transparent"
-        android:contentDescription="@string/back"
-        android:src="@drawable/ic_baseline_arrow_back_24"
-        android:id="@+id/viewPostBackButton"
-        android:layout_alignParentStart="true"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="게시판"
-        android:id="@+id/boardNameTextView"
-        android:textSize="20dp"
-        android:padding="10dp"
-        android:layout_toEndOf="@+id/viewPostBackButton"/>
-
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/viewPostBackButton">
-
+        android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/transparent"
+                    android:contentDescription="@string/back"
+                    android:src="@drawable/ic_baseline_arrow_back_24"
+                    android:id="@+id/viewPostBackButton"
+                    android:layout_alignParentStart="true"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="게시판"
+                    android:id="@+id/boardNameTextView"
+                    android:textSize="20dp"
+                    android:padding="10dp"
+                    android:layout_toEndOf="@+id/viewPostBackButton"/>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -47,14 +48,73 @@
                 android:id="@+id/readContentsView"
                 android:padding="10dp"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/bullet_shape"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="0"
+                    android:textStyle="bold"
+                    android:textColor="@color/green"
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/tvRecommendCount"
+                    android:gravity="center"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_baseline_comment_24"
+                    android:layout_marginLeft="10dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="0"
+                    android:textStyle="bold"
+                    android:textColor="@color/green"
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/tvCommentCount"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView_recommend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/bullet_shape"
+                        android:layout_gravity="center"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/recommendation"
+                        android:layout_marginLeft="3dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/commentListFragment"
                 android:name="military.gunbam.view.fragment.CommentListFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:layout = "@layout/fragment_comment"
-                android:layout_below = "@+id/mainAppTitleTextView"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                tools:layout="@layout/fragment_comment" />
+
             <View
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"/>

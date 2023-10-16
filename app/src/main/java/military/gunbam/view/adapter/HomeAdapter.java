@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,9 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
-
-
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
@@ -92,10 +90,29 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
     @Override
     public void onBindViewHolder(@NonNull final MainViewHolder holder, int position) {
         CardView cardView = holder.cardView;
-        TextView titleTextView = cardView.findViewById(R.id.postTitleTextView);
+
+        TextView titleTextView, tvRecommendCount, tvCommentCount;
+        ImageView ivRecommend, ivComment;
+
+        titleTextView = cardView.findViewById(R.id.postTitleTextView);
+        tvRecommendCount = cardView.findViewById(R.id.tvRecommendCount);
+        tvCommentCount = cardView.findViewById(R.id.tvCommentCount);
+        ivComment = cardView.findViewById(R.id.ivComment);
+        ivRecommend = cardView.findViewById(R.id.ivRecommend);
 
         PostInfo postInfo = mDataset.get(position);
         titleTextView.setText(postInfo.getTitle());
+
+        // 추천이 있을 경우에만 표시
+        if (postInfo.getRecommend().size() > 0) {
+            tvRecommendCount.setVisibility(View.VISIBLE);
+            ivRecommend.setVisibility(View.VISIBLE);
+            tvRecommendCount.setText("" + postInfo.getRecommend().size());
+        } else {
+            tvRecommendCount.setVisibility(View.GONE);
+            ivRecommend.setVisibility(View.GONE);
+        }
+        countCommentsWithId(postInfo.getId(),tvCommentCount, ivComment);
 
         ReadContentsView readContentsVIew = cardView.findViewById(R.id.readContentsView);
         LinearLayout contentsLayout = cardView.findViewById(R.id.contentsLayout);
@@ -141,6 +158,44 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.post, popup.getMenu());
         popup.show();
+    }
+
+    public static void countCommentsWithId(String postId, TextView tvCommentCount, ImageView ivComment) {
+        // Firestore 인스턴스 얻기
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 'comments' 컬렉션 참조
+        CollectionReference commentsRef = db.collection("comments");
+
+        // postInfo.getId()와 같은 commentId를 가진 문서를 찾기 위한 쿼리
+        Query query = commentsRef.whereEqualTo("commentId", postId);
+
+        // 쿼리 실행
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // 쿼리 결과로부터 문서 개수 가져오기
+                    int commentCount = task.getResult().size();
+
+                    // 댓글이 있을 경우에만 표시
+                    if (commentCount > 0) {
+                        tvCommentCount.setVisibility(View.VISIBLE);
+                        tvCommentCount.setText("" + commentCount);
+                        ivComment.setVisibility(View.VISIBLE);
+                    } else {
+                        tvCommentCount.setVisibility(View.GONE);
+                        ivComment.setVisibility(View.GONE);
+                    }
+                } else {
+                    // 쿼리 실패 시 예외 처리
+                    Exception e = task.getException();
+                    if (e != null) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     private void myStartActivity(Class c, PostInfo postInfo) {
