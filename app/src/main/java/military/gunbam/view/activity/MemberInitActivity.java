@@ -49,6 +49,7 @@ public class MemberInitActivity extends BasicActivity {
             public void onChanged(Boolean isUploaded) {
                 showToast(MemberInitActivity.this,memberInitViewModel.getUploadMessage());
                 if (isUploaded) {
+                    startNewActivityAndClearStack(MainActivity.class);
                     finish();
                 } else {
                 }
