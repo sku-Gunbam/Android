@@ -28,7 +28,6 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:contentDescription="profile"
-                android:src="@drawable/gunbam"
                 android:scaleType="centerCrop"/>
         </androidx.cardview.widget.CardView>
 
