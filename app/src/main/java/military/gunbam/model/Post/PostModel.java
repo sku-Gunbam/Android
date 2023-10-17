@@ -55,7 +55,7 @@ public class PostModel {
     }
     public void processText(String path,ArrayList<String> pathList, ArrayList<String> contentsList, ArrayList<String> formatList, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
         formatList.add("text");
-
+        postInfo.setPublisher(user.getUid());
         String[] pathArray = path.split("\\.");
         StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + "." + pathArray[pathArray.length - 1]);
 
@@ -91,9 +91,14 @@ public class PostModel {
         }
     }
     public void uploadImage(ArrayList<String> contentsList,byte[] data, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener){
+        Log.d("PostModel 테스트 docum",documentReference.getId());
+        Log.d("PostModel 테스트 pathCount",Integer.toString(pathCount));
         StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + ".jpg");
         UploadTask uploadTask = mountainImagesRef.putBytes(data);
+        uploadTask.getResult();
+        Log.d("PostModel 테스트",uploadTask.toString());
 
+        postInfo.setPublisher(user.getUid());
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {

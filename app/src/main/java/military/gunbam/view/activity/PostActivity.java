@@ -98,6 +98,8 @@ public class PostActivity extends BasicActivity {
             case 0:
                 if (resultCode == Activity.RESULT_OK) {
                     postInfo = (PostInfo)data.getSerializableExtra("postinfo");
+
+                    Log.d("테스트 PostActivity", "실행됨");
                     contentsLayout.removeAllViews();
                     uiUpdate();
                 }

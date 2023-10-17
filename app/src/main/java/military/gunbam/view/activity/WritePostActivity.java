@@ -111,20 +111,6 @@ public class WritePostActivity extends AppCompatActivity {
         deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, modelPath)).get(DeepLearningViewModel.class);
         deepLearningViewModel = new DeepLearningViewModel(this, modelPath);
 
-
-
-        // DeepLearning 결과
-        deepLearningViewModel.getResultBitmap().observe(this, result ->{
-            //selectedImageVIew = result;
-
-
-            byte[] imageBytes = Base64.decode(result.toString(), Base64.DEFAULT);
-            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-
-            //selectedImageVIew.setImageBitmap(decodedImage);
-
-        });
-
         writePostViewModel = new ViewModelProvider(this).get(WritePostViewModel.class);
 
         // UI 요소와 ViewModel 데이터를 바인딩
@@ -273,12 +259,16 @@ public class WritePostActivity extends AppCompatActivity {
             String boardName = getIntent().getStringExtra("boardName");
             Log.d("테스트 boardName",boardName);
             loaderLayout.setVisibility(View.VISIBLE);
+            final Date date;
             if (postInfo == null) {
                 setDocumentReference("posts");
+                date = new Date();
             } else {
                 setDocumentReference("posts",postInfo.getId());
+                date = postInfo.getCreatedAt();
+
             }
-            final Date date = postInfo == null ? new Date() : postInfo.getCreatedAt();
+            //final Date date = postInfo == null ? new Date() : postInfo.getCreatedAt();
 
             for (int i = 0; i < parent.getChildCount(); i++) {
                 LinearLayout linearLayout = (LinearLayout) parent.getChildAt(i);
@@ -360,7 +350,7 @@ public class WritePostActivity extends AppCompatActivity {
     }
     private void processImage(String path, ArrayList<String> contentsList, ArrayList<String> formatList, String title,  Date date, String boardName,PostInfo postInfo) {
         Bitmap bitmap = decodeImageFile(path);
-        deepLearningViewModel.run(bitmap);
+        //deepLearningViewModel.run(bitmap);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
