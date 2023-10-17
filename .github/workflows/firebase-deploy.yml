@@ -37,7 +37,7 @@ jobs:
         env:
           CI: true
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: ${{ steps.vars.outputs.PROJECT_ID }}
+          PROJECT_ID: ${{ steps.vars.outputs.service-name-main }}
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
