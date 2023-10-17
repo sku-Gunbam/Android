@@ -29,3 +29,15 @@ jobs:
       - run: fastlane publishDevDebug
         env:
           APP_ID: ${{ secrets.DEV_APP_ID }}
+
+
+      - name: Decode Keystore File
+            uses: timheuer/base64-to-file@v1
+            id: android_keystore
+            with:
+                fileName: "android_keystore.keystore"
+                encodedString: ${{ secrets.RELEASE_KEY_APK }}
+                  
+      - run: fastlane publishProdRelease
+          env:
+              KEYSTORE_FILE : ${{ steps.android_keystore.outputs.filePath }}

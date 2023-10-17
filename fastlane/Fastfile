@@ -57,4 +57,27 @@ platform :android do
      release_notes: "Test version of devDebug build."
   )
   end
+
+  desc "Submit a new Release Build to Firebase App Distribution"
+  lane :publishProdRelease do
+  gradle(
+        task: 'assemble',
+        flavor: "prod",
+        build_type: 'Release',
+        print_command: true,
+        properties: {
+          "android.injected.signing.store.file" => ENV["KEYSTORE_FILE"],
+          "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+          "android.injected.signing.key.alias" => ENV["KEY_ALIAS"],
+          "android.injected.signing.key.password" => ENV["KEY_PASSWORD"]
+        }
+  )
+  
+  firebase_app_distribution(
+     service_credentials_file: "firebase_credentials.json",
+     app: ENV["APP_ID"],
+     groups: "QA",
+     release_notes: "Test version of prodRelease."
+  )
+  end
 end
