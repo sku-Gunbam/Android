@@ -16,9 +16,9 @@ jobs:
       - name: Install dependencies
         uses: borales/actions-yarn@v2.3.0
         with:
-        cmd: install --production # will run `yarn install` command
+          cmd: install --production # will run `yarn install` command
 
-       - name: Create variables
+      - name: Create variables
         id: vars
         run: |
           branch=${GITHUB_REF##*/}
@@ -37,7 +37,8 @@ jobs:
         env:
           CI: true
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: ${{ steps.vars.outputs.service-name-main }}
+          PROJECT_ID: ${{ steps.vars.outputs.PROJECT_ID }} # 수정: 변수명을 PROJECT_ID로 변경
+
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
