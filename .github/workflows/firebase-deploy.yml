@@ -37,7 +37,7 @@ jobs:
         env:
           CI: true
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: ${{ steps.vars.outputs.PROJECT_ID }} # 수정: 변수명을 PROJECT_ID로 변경
+          PROJECT_ID: ${{ steps.vars.outputs.PROJECT_ID }}
 
       - name: Set up JDK
         uses: actions/setup-java@v2
