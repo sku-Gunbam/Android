@@ -1,28 +1,31 @@
-name: Deploy to Play Store
+name: Test distribution to Firebase
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
+  build:
+    runs-on: macos-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v2
+      - uses: actions/checkout@v2
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
+          distribution: "zulu"
+          java-version: 17
 
-      - name: Build and Upload to Play Store
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PLAYSTORE_KEY: ${{ secrets.PLAYSTORE_KEY }}
-          PLAYSTORE_JSON: ${{ secrets.PLAYSTORE_JSON }}
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Create Firebase Service Credentials file
         run: |
-          ./gradlew bundleRelease
-          ./gradlew publishBundle --console=plain --no-daemon
+          echo "$FIREBASE_CREDENTIALS" > firebase_credentials.json.b64
+          base64 -d -i firebase_credentials.json.b64 > firebase_credentials.json
+        env:
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+
+      - run: fastlane publishDevDebug
+        env:
+          APP_ID: ${{ secrets.DEV_APP_ID }}
