@@ -13,19 +13,19 @@ import org.junit.runner.RunWith;
 import military.gunbam.view.activity.LoginActivity;
 
 @RunWith(AndroidJUnit4.class)
-public class SampleTest {
+public class LoginActivityTest {
 
     @Rule
     public ActivityScenarioRule<LoginActivity> scenarioRule = new ActivityScenarioRule<>(LoginActivity.class);
 
     @Test
     public void testLogin() {
-        // 미리 정의된 사용자 이름과 암호를 사용하여 로그인 시나리오를 시뮬레이트합니다.
+        // 미리 정의된 사용자 이름과 암호를 사용하여 로그인 시나리오를 시뮬레이트
         Espresso.onView(ViewMatchers.withId(R.id.emailEditText))
-                .perform(ViewActions.typeText("your_test_email@example.com")); // 여기에 테스트용 이메일 입력
+                .perform(ViewActions.typeText("your_test_email@example.com")); // 테스트용 이메일 입력
 
         Espresso.onView(ViewMatchers.withId(R.id.passwordEditText))
-                .perform(ViewActions.typeText("your_test_password")); // 여기에 테스트용 비밀번호 입력
+                .perform(ViewActions.typeText("your_test_password")); // 테스트용 비밀번호 입력
 
         Espresso.onView(ViewMatchers.withId(R.id.loginButton))
                 .perform(ViewActions.click());
