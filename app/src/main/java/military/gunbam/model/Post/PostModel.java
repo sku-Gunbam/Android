@@ -4,20 +4,28 @@ import static military.gunbam.utils.Util.showToast;
 import static military.gunbam.utils.Util.storageUrlToName;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -31,14 +39,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
+import military.gunbam.FirebaseHelper;
+import military.gunbam.model.CommentInfo;
+import military.gunbam.view.activity.PostActivity;
 import military.gunbam.view.activity.WritePostActivity;
 
 public class PostModel {
-    FirebaseUser user;
-    FirebaseStorage storage;
-    StorageReference storageRef;
-    FirebaseFirestore firebaseFirestore;
-    DocumentReference documentReference;
+    private FirebaseUser user;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private FirebaseFirestore firebaseFirestore;
+    private DocumentReference documentReference;
     int successCount= 0,pathCount=0;
     public PostModel(){
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -95,8 +106,8 @@ public class PostModel {
         Log.d("PostModel 테스트 pathCount",Integer.toString(pathCount));
         StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + ".jpg");
         UploadTask uploadTask = mountainImagesRef.putBytes(data);
-        uploadTask.getResult();
-        Log.d("PostModel 테스트",uploadTask.toString());
+        //uploadTask.getResult();
+        //Log.d("PostModel 테스트",uploadTask.toString());
 
         postInfo.setPublisher(user.getUid());
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -160,5 +171,60 @@ public class PostModel {
         StorageReference desertRef = storageRef.child("posts/" + postInfo.getId() + "/" + storageUrlToName(path));
         desertRef.delete().addOnSuccessListener(voidOnSuccessListener).addOnFailureListener(onFailureListener);
     }
+    public void countCommentsWithId(String postId, TextView tvCommentCount){
 
+        // 'comments' 컬렉션 참조
+        CollectionReference commentsRef = firebaseFirestore.collection("comments");
+
+        // postInfo.getId()와 같은 commentId를 가진 문서를 찾기 위한 쿼리
+        Query query = commentsRef.whereEqualTo("commentId", postId);
+
+        // 쿼리 실행
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // 쿼리 결과로부터 문서 개수 가져오기
+                    int commentCount = task.getResult().size();
+
+                    // 결과 사용 예시
+                    // count 값을 원하는 대로 활용하면 됩니다.
+                    // 예: TextView에 출력하거나 다른 처리 수행
+                    System.out.println("Comment count for postId " + postId + ": " + commentCount);
+                    tvCommentCount.setText("" + commentCount);
+                } else {
+                    // 쿼리 실패 시 예외 처리
+                    Exception e = task.getException();
+                    if (e != null) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+    public void writeComments(CommentInfo newComment, OnSuccessListener<DocumentReference> onSuccessListener, OnFailureListener onFailureListener){
+        CollectionReference commentsCollection = firebaseStoreCollection("comments");
+        commentsCollection.add(newComment)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
+    public CollectionReference firebaseStoreCollection(String comment) {
+        return firebaseFirestore.collection(comment);
+    }
+    public void deleteRecommend(String collectionPath, String postId, String filed, ArrayList<String> recommend, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener){
+        firebaseFirestore.collection(collectionPath)
+                .document(postId)
+                .update(filed, recommend)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+
+    }
+    public void addRecommend(String collectionPath, String postId, String filed, ArrayList<String> recommend, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener){
+        // posts 컬렉션에서 해당 문서의 recommend 필드 업데이트
+        firebaseFirestore.collection(collectionPath)
+                .document(postId)
+                .update(filed, recommend)
+                .addOnSuccessListener(onSuccessListener)
+                .addOnFailureListener(onFailureListener);
+    }
 }

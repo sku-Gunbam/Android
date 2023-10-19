@@ -65,12 +65,14 @@ import military.gunbam.model.Post.PostInfo;
 import military.gunbam.view.ContentsItemView;
 import military.gunbam.viewmodel.DeepLearningViewModel;
 import military.gunbam.viewmodel.DeepLearningViewModelFactory;
+import military.gunbam.viewmodel.UserViewModel;
 import military.gunbam.viewmodel.WritePostViewModel;
 
 public class WritePostActivity extends AppCompatActivity {
 
     private WritePostViewModel writePostViewModel;
     private DeepLearningViewModel deepLearningViewModel;
+    private UserViewModel userViewModel;
     private static final String TAG = "WritePostActivity";
     private ArrayList<String> pathList = new ArrayList<>();
     private LinearLayout parent;
@@ -107,7 +109,14 @@ public class WritePostActivity extends AppCompatActivity {
         findViewById(R.id.imageModify).setOnClickListener(onClickListener);
         findViewById(R.id.delete).setOnClickListener(onClickListener);
 
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.loadCurrentUser();
+        userViewModel.getCurrentUser().observe(this, user -> {
+            if (user != null) {
 
+            } else {
+            }
+        });
         deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, modelPath)).get(DeepLearningViewModel.class);
         deepLearningViewModel = new DeepLearningViewModel(this, modelPath);
 
@@ -136,11 +145,6 @@ public class WritePostActivity extends AppCompatActivity {
             writePostViewModel.setAnonymous(isAnonymous); // ViewModel에 변경된 데이터 업데이트
         });
 
-
-        // 기존 코드 중 필요한 부분만 남기고 나머지는 삭제
-        // ...
-
-        // 편집 모드인 경우 데이터 로드 및 초기화
         postInfo = (PostInfo) getIntent().getSerializableExtra("postInfo");
         if (postInfo != null) {
             writePostViewModel.setTitle(postInfo.getTitle()); // ViewModel에 데이터 설정
@@ -286,9 +290,9 @@ public class WritePostActivity extends AppCompatActivity {
 
                             if (isImageFile(path)) {
                                 formatList.add("image");
-                                processImage(path, contentsList, formatList,title, date, boardName, new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommend,boardName));
+                                processImage(path, contentsList, formatList,title, date, boardName, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
                             }
-                            processText(path, contentsList, formatList,new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommend,boardName)); //
+                            processText(path, contentsList, formatList,new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName)); //
 
                         } else {
                             formatList.add("text");
@@ -303,7 +307,7 @@ public class WritePostActivity extends AppCompatActivity {
             writePostViewModel.setAnonymous(isAnonymous);
 
             if(successCount==0){
-                storeUpload(new PostInfo(title,contentsList,formatList,null,date,isAnonymous,recommend,boardName));
+                storeUpload(new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
             }
 
 

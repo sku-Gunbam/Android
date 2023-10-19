@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -21,8 +22,10 @@ import military.gunbam.view.activity.LoginActivity;
 import military.gunbam.view.activity.MemberInitActivity;
 import military.gunbam.view.activity.PostActivity;
 import military.gunbam.viewmodel.MemberInitViewModel;
+import military.gunbam.viewmodel.UserViewModel;
 
 public class MyPageFragment extends Fragment {
+    private UserViewModel userViewModel;
     public MyPageFragment() {
 
     }
@@ -30,12 +33,25 @@ public class MyPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_page, container, false);
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.loadCurrentUser();
+        userViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
 
+            } else {
+            }
+        });
         // 회원정보 조회 버튼
         view.findViewById(R.id.viewProfileButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //StartActivity(CalculatorFragment.class);
+                //startActivity(CalculatorFragment.class);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_calculator_main, new CalculatorFragment())
+                        .addToBackStack(null)
+                        .commit();
+
+
             }
         });
 
@@ -44,7 +60,7 @@ public class MyPageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //String publisher= "";
-                String publisher = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String publisher = userViewModel.getCurrentUser().getValue().getUid();
                 myStartActivity(BoardListActivity.class, "publisher", publisher);
             }
 
@@ -54,7 +70,7 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.viewCommentsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //myStartActivity(BoardListActivity.class, "publisher",);
+                myStartActivity(BoardListActivity.class, "publisher",userViewModel.getCurrentUser().getValue().getUid());
                 /*getFragmentManager().beginTransaction()
                         .replace(R.id.main_board_list_fragment, new PostActivity())
                         .addToBackStack(null)
@@ -66,7 +82,7 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.editProfileButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //myStartActivity(MemberInitActivity.class);
+                myStartActivity(MemberInitActivity.class);
             }
         });
 
@@ -85,6 +101,10 @@ public class MyPageFragment extends Fragment {
         Intent intent = new Intent(getActivity(), c);
         intent.putExtra("field", field);
         intent.putExtra("fieldValue", fieldValue);
+        startActivity(intent);
+    }
+    private void myStartActivity(Class c){
+        Intent intent = new Intent(getActivity(), c);
         startActivity(intent);
     }
     @Override
