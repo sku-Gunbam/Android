@@ -62,6 +62,7 @@ import java.util.List;
 
 import military.gunbam.R;
 import military.gunbam.model.Post.PostInfo;
+import military.gunbam.model.SuccessCountSingleton;
 import military.gunbam.view.ContentsItemView;
 import military.gunbam.viewmodel.DeepLearningViewModel;
 import military.gunbam.viewmodel.DeepLearningViewModelFactory;
@@ -83,13 +84,14 @@ public class WritePostActivity extends AppCompatActivity {
     private EditText contentsEditText;
     private EditText titleEditText;
     private PostInfo postInfo;
-    private int pathCount=0, successCount=0;
+    private int pathCount=0;
     private CheckBox anonymousCheckBox;
     private boolean isAnonymous = false;
     private ImageButton writePostBackButton;
     private Bitmap bitmap;
     private final ArrayList<String> contentsList = new ArrayList<>();
     private final ArrayList<String> formatList = new ArrayList<>();
+    private SuccessCountSingleton successCountSingleton = SuccessCountSingleton.getInstance();
     private static final String modelPath = "model2.tflite";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -285,14 +287,14 @@ public class WritePostActivity extends AppCompatActivity {
                             formatList.add("text");
                         } else if (!isStorageUrl(pathList.get(pathCount))) {
                             String path = pathList.get(pathCount);
-                            successCount++;
+                            successCountSingleton.increaseSuccessCount();
                             contentsList.add(path);
 
                             if (isImageFile(path)) {
                                 formatList.add("image");
-                                processImage(path, contentsList, formatList,title, date, boardName, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
+                                processImage(path, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
                             }
-                            processText(path, contentsList, formatList,new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName)); //
+                            processText(path, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName)); //
 
                         } else {
                             formatList.add("text");
@@ -306,7 +308,7 @@ public class WritePostActivity extends AppCompatActivity {
             writePostViewModel.setContents(contentsList);
             writePostViewModel.setAnonymous(isAnonymous);
 
-            if(successCount==0){
+            if(successCountSingleton.getSuccessCount()==0){
                 storeUpload(new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
             }
 
@@ -315,11 +317,15 @@ public class WritePostActivity extends AppCompatActivity {
             showToast(WritePostActivity.this, "제목을 입력해주세요.");
         }
     }
-    private void storageUpload(){
 
-    }
     private void storeUpload(final PostInfo postInfo) {
-        writePostViewModel.storeUpload(postInfo);
+        writePostViewModel.storeUpload(postInfo,
+                aVoid -> {
+                    processSuccess();
+                },
+                e->{
+                    processFailure();
+                });
     }
 
     private Bitmap decodeImageFile(String filePath) {
@@ -339,10 +345,11 @@ public class WritePostActivity extends AppCompatActivity {
     public void setDocumentReference(String collectionPath){
         writePostViewModel.setDocumentReference(collectionPath);
     }
-    private void processText(String path, ArrayList<String> contentsList, ArrayList<String> formatList, PostInfo postInfo) {
+    private void processText(String path, PostInfo postInfo) {
         writePostViewModel.processText(path, pathList, contentsList, formatList, postInfo, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
+                Log.d("WritePostActivity","processText 성공");
                 processSuccess();
             }
         }, new OnFailureListener() {
@@ -352,7 +359,7 @@ public class WritePostActivity extends AppCompatActivity {
             }
         });
     }
-    private void processImage(String path, ArrayList<String> contentsList, ArrayList<String> formatList, String title,  Date date, String boardName,PostInfo postInfo) {
+    private void processImage(String path, PostInfo postInfo) {
         Bitmap bitmap = decodeImageFile(path);
         //deepLearningViewModel.run(bitmap);
 

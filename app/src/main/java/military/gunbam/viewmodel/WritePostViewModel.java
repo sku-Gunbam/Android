@@ -72,9 +72,7 @@ public class WritePostViewModel extends ViewModel {
     public MutableLiveData<Boolean> getAnonymousLiveData() {
         return anonymousLiveData;
     }
-    public void storageUpload(byte[] data, PostInfo postInfo){
 
-    }
     public LiveData<Boolean> getLoadingStatus() {
         return loadingStatus;
     }
@@ -82,26 +80,10 @@ public class WritePostViewModel extends ViewModel {
     public LiveData<Exception> getError() {
         return error;
     }
-    public void storageUpload(ArrayList<String> contentsList, byte[] data, PostInfo postInfo, OnSuccessListener<Void> successListener, OnFailureListener failureListener){
-        postModel.storageUpload(contentsList,data,postInfo,successListener,failureListener);
-    }
-    public void storeUpload(PostInfo postInfo) {
+
+    public void storeUpload(PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
         loadingStatus.setValue(true);
-        postModel.storeUpload(postInfo,
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        loadingStatus.setValue(false);
-                        // 성공적으로 저장됐을 때의 처리
-                    }
-                },
-                new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        loadingStatus.setValue(false);
-                        error.setValue(e);
-                    }
-                });
+        postModel.storeUpload(postInfo, voidOnSuccessListener, onFailureListener);
 
     }
     public void setDocumentReference(String collectionPath, String documentID) {

@@ -41,6 +41,7 @@ import java.util.Date;
 
 import military.gunbam.FirebaseHelper;
 import military.gunbam.model.CommentInfo;
+import military.gunbam.model.SuccessCountSingleton;
 import military.gunbam.view.activity.PostActivity;
 import military.gunbam.view.activity.WritePostActivity;
 
@@ -50,7 +51,9 @@ public class PostModel {
     private StorageReference storageRef;
     private FirebaseFirestore firebaseFirestore;
     private DocumentReference documentReference;
-    int successCount= 0,pathCount=0;
+    private int pathCount = 0;
+    private SuccessCountSingleton successCountSingleton = SuccessCountSingleton.getInstance();
+    private final static String key = "index";
     public PostModel(){
         user = FirebaseAuth.getInstance().getCurrentUser();
         storage = FirebaseStorage.getInstance();
@@ -66,7 +69,6 @@ public class PostModel {
     }
     public void processText(String path,ArrayList<String> pathList, ArrayList<String> contentsList, ArrayList<String> formatList, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
         formatList.add("text");
-        postInfo.setPublisher(user.getUid());
         String[] pathArray = path.split("\\.");
         StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + "." + pathArray[pathArray.length - 1]);
 
@@ -79,6 +81,7 @@ public class PostModel {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     // 실패 처리
+                    Log.d("PostModel 텍스트 업로드","실패");
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -87,47 +90,47 @@ public class PostModel {
                     mountainImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            successCount--;
+                            successCountSingleton.decreaseSuccessCount();
                             contentsList.set(index, uri.toString());
-                            if (successCount == 0) {
+                            if (successCountSingleton.getSuccessCount() == 0) {
                                 PostInfo successPostInfo = postInfo; //new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
                                 storeUpload(successPostInfo,voidOnSuccessListener,onFailureListener);
+                                Log.d("PostModel 텍스트 업로드","1차");
                             }
+                            Log.d("PostModel 텍스트 업로드","2차");
                         }
                     });
                 }
             });
         } catch (FileNotFoundException e) {
-            Log.e("로그", "에러: " + e.toString());
+            Log.e("PostModel", "에러: " + e.toString());
         }
     }
     public void uploadImage(ArrayList<String> contentsList,byte[] data, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener){
-        Log.d("PostModel 테스트 docum",documentReference.getId());
-        Log.d("PostModel 테스트 pathCount",Integer.toString(pathCount));
         StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + ".jpg");
-        UploadTask uploadTask = mountainImagesRef.putBytes(data);
-        //uploadTask.getResult();
-        //Log.d("PostModel 테스트",uploadTask.toString());
-
-        postInfo.setPublisher(user.getUid());
+        StorageMetadata metadata = new StorageMetadata.Builder().setCustomMetadata("index", "" + (contentsList.size() - 1)).build();
+        UploadTask uploadTask = mountainImagesRef.putBytes(data,metadata);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // 실패 처리
+                Log.d("PostModel 이미지 업로드","실패");
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                final int index = Integer.parseInt(taskSnapshot.getMetadata().getCustomMetadata("index"));
+                final int index = Integer.parseInt(taskSnapshot.getMetadata().getCustomMetadata(key));
                 mountainImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        successCount--;
+                        successCountSingleton.decreaseSuccessCount();
                         contentsList.set(index, uri.toString());
-                        if (successCount == 0) {
+                        if (successCountSingleton.getSuccessCount() == 0) {
                             PostInfo successPostInfo = postInfo;//new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
                             storeUpload(successPostInfo,voidOnSuccessListener,onFailureListener);
+                            Log.d("PostModel 이미지 업로드","1차");
                         }
+                        Log.d("PostModel 이미지 업로드","2차");
                     }
                 });
             }
@@ -138,35 +141,7 @@ public class PostModel {
                 .addOnSuccessListener(voidOnSuccessListener)
                 .addOnFailureListener(onFailureListener);
     }
-    public void storageUpload(ArrayList<String> contentsList, byte[] data, PostInfo postInfo, OnSuccessListener<Void> successListener, OnFailureListener failureListener){
-        // Firebase Storage에 업로드
-        StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + ".jpg");
-        UploadTask uploadTask = mountainImagesRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // 실패 처리
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // 성공 처리
-                final int index = Integer.parseInt(taskSnapshot.getMetadata().getCustomMetadata("index"));
-                mountainImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        successCount--;
-                        contentsList.set(index, uri.toString());
-                        if (successCount == 0) {
-                            PostInfo successPostInfo = postInfo;//new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
-                            postInfo.setPublisher(user.getUid());
-                            storeUpload(successPostInfo,successListener,failureListener);
-                        }
-                    }
-                });
-            }
-        });
-    }
+
     public void deletePost(String path, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener){
         StorageReference desertRef = storageRef.child("posts/" + postInfo.getId() + "/" + storageUrlToName(path));
         desertRef.delete().addOnSuccessListener(voidOnSuccessListener).addOnFailureListener(onFailureListener);
