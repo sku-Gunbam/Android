@@ -2,9 +2,13 @@ package military.gunbam.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.lang.reflect.Member;
+import java.util.Objects;
 
 import military.gunbam.R;
 import military.gunbam.utils.Util;
@@ -70,7 +75,7 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.viewCommentsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myStartActivity(BoardListActivity.class, "publisher",userViewModel.getCurrentUser().getValue().getUid());
+                myStartActivity(BoardListActivity.class, "commentId",userViewModel.getCurrentUser().getValue().getUid());
                 /*getFragmentManager().beginTransaction()
                         .replace(R.id.main_board_list_fragment, new PostActivity())
                         .addToBackStack(null)
@@ -92,6 +97,7 @@ public class MyPageFragment extends Fragment {
             public void onClick(View v) {
                 MemberInitViewModel viewModel;
                 //viewModel.
+                showWithdrawPopup();
             }
         });
         return view;
@@ -112,5 +118,31 @@ public class MyPageFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // 여기에 프래그먼트가 생성될 때 실행할 코드를 작성합니다.
+    }
+    private void showWithdrawPopup() {
+        if (getActivity() != null) {
+            View popupView = getLayoutInflater().inflate(R.layout.withdraw_popup, null);
+
+            PopupWindow popupWindow = new PopupWindow(
+                    popupView,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+
+            Button btnConfirmWithdraw = popupView.findViewById(R.id.btn_confirm_withdraw);
+            Button btnCancelWithdraw = popupView.findViewById(R.id.btn_cancel_withdraw);
+
+            btnConfirmWithdraw.setOnClickListener(v -> {
+                // 회원 탈퇴 로직 추가
+                // ...
+
+                // 팝업 닫기
+                popupWindow.dismiss();
+            });
+
+            btnCancelWithdraw.setOnClickListener(v -> popupWindow.dismiss());
+
+            popupWindow.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        }
     }
 }

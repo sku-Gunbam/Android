@@ -88,7 +88,7 @@ public class WritePostActivity extends AppCompatActivity {
     private CheckBox anonymousCheckBox;
     private boolean isAnonymous = false;
     private ImageButton writePostBackButton;
-    private Bitmap bitmap;
+    private Bitmap deepLearningResultBitmap;
     private final ArrayList<String> contentsList = new ArrayList<>();
     private final ArrayList<String> formatList = new ArrayList<>();
     private SuccessCountSingleton successCountSingleton = SuccessCountSingleton.getInstance();
@@ -121,7 +121,10 @@ public class WritePostActivity extends AppCompatActivity {
         });
         deepLearningViewModel = new ViewModelProvider(this,new DeepLearningViewModelFactory(this, modelPath)).get(DeepLearningViewModel.class);
         deepLearningViewModel = new DeepLearningViewModel(this, modelPath);
-
+        deepLearningViewModel.getResultBitmap().observe(this, bitmap ->{
+                deepLearningResultBitmap = bitmap;
+            }
+        );
         writePostViewModel = new ViewModelProvider(this).get(WritePostViewModel.class);
 
         // UI 요소와 ViewModel 데이터를 바인딩
@@ -178,6 +181,7 @@ public class WritePostActivity extends AppCompatActivity {
                     }
 
                     contentsItemView.setImage(path);
+                    deepLearningResultBitmap = contentsItemView.getImage();
                     contentsItemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -290,9 +294,14 @@ public class WritePostActivity extends AppCompatActivity {
                             successCountSingleton.increaseSuccessCount();
                             contentsList.add(path);
 
+                            Log.d("이미지 path 테스트",isImageFile(path) + path);
+
                             if (isImageFile(path)) {
                                 formatList.add("image");
-                                processImage(path, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
+                                Log.d("WritePostActivity",isImageFile(path) + path);
+
+                                processImage(deepLearningResultBitmap, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
+
                             }
                             processText(path, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName)); //
 
@@ -349,31 +358,34 @@ public class WritePostActivity extends AppCompatActivity {
         writePostViewModel.processText(path, pathList, contentsList, formatList, postInfo, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                Log.d("WritePostActivity","processText 성공");
+                Log.d("WritePostActivity 테스트","processText 성공");
                 processSuccess();
             }
         }, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                Log.d("WritePostActivity 테스트","processText 실패");
                 processFailure();
             }
         });
     }
-    private void processImage(String path, PostInfo postInfo) {
-        Bitmap bitmap = decodeImageFile(path);
-        //deepLearningViewModel.run(bitmap);
-
+    private void processImage(Bitmap deepLearningResultBitmap, PostInfo postInfo) {
+        //Bitmap bitmap = decodeImageFile(path);
+        Bitmap bitmap = deepLearningResultBitmap;
+        Log.d("processImage 실행됨","테스트");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
         writePostViewModel.uploadImage(contentsList, data, postInfo, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid){
+                Log.d("WritePostActivity","processImage 테스트 성공");
                 processSuccess();
             }
         }, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                Log.d("WritePostActivity","processImage 테스트 실패");
                 processFailure();
             }
         });
@@ -382,7 +394,7 @@ public class WritePostActivity extends AppCompatActivity {
         writePostViewModel.deletePost(path, postInfo, voidOnSuccessListener, onFailureListener);
     }
     private void processSuccess(){
-        Log.d(TAG, "DocumentSnapshot successfully written!");
+        Log.d(TAG, "processSuccess 함수 테스트 성공");
         loaderLayout.setVisibility(View.GONE);
         Intent resultIntent = new Intent();
         resultIntent.putExtra("postinfo", postInfo);
@@ -390,7 +402,7 @@ public class WritePostActivity extends AppCompatActivity {
         finish();
     }
     private void processFailure(){
-        Log.d(TAG, "Error writing document");
+        Log.d(TAG, "processFaileur 함수 테스트 실패");
         loaderLayout.setVisibility(View.GONE);
     }
 }

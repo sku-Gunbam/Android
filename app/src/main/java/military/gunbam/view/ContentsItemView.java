@@ -30,6 +30,7 @@ import military.gunbam.viewmodel.DeepLearningViewModelFactory;
 public class ContentsItemView extends LinearLayout {
     private ImageView imageView;
     private EditText editText;
+    private Bitmap deepLearningResultBitmap;
     private DeepLearningViewModel deepLearningViewModel;
     private static String modelPath = "model2.tflite";
     public ContentsItemView(Context context) {
@@ -58,7 +59,6 @@ public class ContentsItemView extends LinearLayout {
     }
 
     public void setImage(String path){
-        //Glide.with(this).load(path).override(1000).into(imageView);
         Glide.with(this)
                 .asBitmap()
                 .load(path)
@@ -72,13 +72,16 @@ public class ContentsItemView extends LinearLayout {
                             @Override
                             public void onChanged(Bitmap bitmap) {
                                 imageView.setImageBitmap(bitmap);
+                                deepLearningResultBitmap = bitmap;
                             }
                         });
                 }
                 });
 
     }
-
+    public Bitmap getImage(){
+        return deepLearningResultBitmap;
+    }
     public void setText(String text){
         editText.setText(text);
     }

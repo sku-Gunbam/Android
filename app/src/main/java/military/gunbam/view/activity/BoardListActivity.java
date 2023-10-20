@@ -21,6 +21,7 @@ import military.gunbam.listener.OnPostListener;
 import military.gunbam.model.Post.PostInfo;
 import military.gunbam.view.adapter.BoardListAdapter;
 import military.gunbam.viewmodel.BoardListViewModel;
+import military.gunbam.viewmodel.CommentListViewModel;
 
 public class BoardListActivity extends BasicActivity {
 
@@ -35,7 +36,7 @@ public class BoardListActivity extends BasicActivity {
     private String fieldValue;
     private MutableLiveData<ArrayList<PostInfo>> postListLiveData = new MutableLiveData<>();
     private boolean updating;
-
+    private CommentListViewModel commentListViewModel;
     private BoardListAdapter boardListAdapter;
     private BoardListViewModel boardListViewModel;
 
@@ -53,6 +54,8 @@ public class BoardListActivity extends BasicActivity {
             textViewBoardName.setText(fieldValue);
         }else if(field.equals("publisher")){
             textViewBoardName.setText("내가 쓴 게시글");
+        }else if(field.equals("commentId")){
+            textViewBoardName.setText("내가 쓴 댓글");
         }
 
         // postList 초기화
@@ -60,7 +63,7 @@ public class BoardListActivity extends BasicActivity {
 
         // ViewModel 초기화
         boardListViewModel = new ViewModelProvider(this).get(BoardListViewModel.class);
-
+        commentListViewModel = new ViewModelProvider(this).get(CommentListViewModel.class);
         // RecyclerView 및 Adapter 설정
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -73,7 +76,9 @@ public class BoardListActivity extends BasicActivity {
             // Adapter에 데이터를 설정하여 화면 업데이트
             boardListAdapter.setPostList(postList);
         });
+        commentListViewModel.getCommentListLiveData().observe(this, commentList ->{
 
+        });
         // 스크롤 이벤트 및 초기 데이터 로딩 처리
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             // 스크롤 이벤트 처리 코드...
@@ -85,10 +90,13 @@ public class BoardListActivity extends BasicActivity {
                 // 스크롤 이벤트 처리 코드...
             }
         });
-
-        // 초기 데이터 로딩
-        boardListViewModel.loadPosts(false,field, fieldValue);
-
+        if(field.equals("boardName") || field.equals("publisher")) {
+            // 초기 데이터 로딩
+            boardListViewModel.loadPosts(false, field, fieldValue);
+        }
+        else if(field.equals("commentId")){
+            commentListViewModel.loadComments(fieldValue);
+        }
         // 게시물 작성 버튼 클릭 이벤트
         findViewById(R.id.mainFloatingActionButton).setOnClickListener(new View.OnClickListener() {
             @Override

@@ -81,7 +81,7 @@ public class PostModel {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     // 실패 처리
-                    Log.d("PostModel 텍스트 업로드","실패");
+                    Log.d("PostModel 텍스트 업로드","테스트 실패");
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -95,9 +95,9 @@ public class PostModel {
                             if (successCountSingleton.getSuccessCount() == 0) {
                                 PostInfo successPostInfo = postInfo; //new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
                                 storeUpload(successPostInfo,voidOnSuccessListener,onFailureListener);
-                                Log.d("PostModel 텍스트 업로드","1차");
+                                Log.d("PostModel 텍스트 업로드","테스트 1차");
                             }
-                            Log.d("PostModel 텍스트 업로드","2차");
+                            Log.d("PostModel 텍스트 업로드","테스트 2차");
                         }
                     });
                 }
@@ -114,7 +114,7 @@ public class PostModel {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // 실패 처리
-                Log.d("PostModel 이미지 업로드","실패");
+                Log.d("PostModel 이미지 업로드","테스트 실패");
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -128,9 +128,9 @@ public class PostModel {
                         if (successCountSingleton.getSuccessCount() == 0) {
                             PostInfo successPostInfo = postInfo;//new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
                             storeUpload(successPostInfo,voidOnSuccessListener,onFailureListener);
-                            Log.d("PostModel 이미지 업로드","1차");
+                            Log.d("PostModel 이미지 업로드","테스트 1차");
                         }
-                        Log.d("PostModel 이미지 업로드","2차");
+                        Log.d("PostModel 이미지 업로드","테스트 2차");
                     }
                 });
             }
