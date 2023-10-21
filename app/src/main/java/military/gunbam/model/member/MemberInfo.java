@@ -23,6 +23,7 @@ public class MemberInfo {
      * @param rank           사용자 등급 정보
      * @param draftUrl       징병 서류 URL 정보 (선택)
      */
+    public MemberInfo(){}
     public MemberInfo(String nickName, String name, String phoneNumber, String birthDate, String joinDate, String dischargeDate, String rank, String draftUrl){
         this.nickName = nickName;
         this.name = name;

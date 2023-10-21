@@ -1,6 +1,12 @@
 package military.gunbam.viewmodel;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -14,6 +20,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -25,21 +33,29 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import military.gunbam.model.member.MemberInfo;
 import military.gunbam.model.member.MemberModel;
+import military.gunbam.view.activity.MainActivity;
 
 public class MemberInitViewModel extends ViewModel {
-    private FirebaseUser user;
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();;
     private MemberModel memberModel = new MemberModel();
     String errorMessage = "";
     String uploadMessage= "";
-    //private MutableLiveData<MemberUploadResult> uploadResultMutableLiveData = new MutableLiveData<>();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageRef = storage.getReference();
+
     private MutableLiveData<Boolean> isUploaded = new MutableLiveData<>();
     private MutableLiveData<String> toastMessage = new MutableLiveData<>();
+    private MutableLiveData<MemberInfo> memberInfoMutableLiveData = new MutableLiveData<>();
+
     public MutableLiveData<String> getToastMessage() {
         return toastMessage;
     }
+    public MutableLiveData<MemberInfo> getMemberInfo() {return memberInfoMutableLiveData; }
 
     public String getUploadMessage() {
         return uploadMessage;
@@ -76,15 +92,11 @@ public class MemberInitViewModel extends ViewModel {
             errorMessage = "닉네임 또는 이름은 최대 10자까지 가능합니다.";
         } else {
             // 회원정보가 유효한 경우 처리
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
-            user = FirebaseAuth.getInstance().getCurrentUser();
             final StorageReference mountainImagesRef = storageRef.child("users/"+user.getUid()+"/draftNotice.jpg");
 
             if (draftPath == null) {
                 MemberInfo memberInfo = new MemberInfo(nickName, name, phoneNumber, birthDate, joinDate, dischargeDate, rank);
                 uploader(memberInfo);
-
             } else {
                 try {
                     InputStream stream = new FileInputStream(new File(draftPath));
@@ -120,7 +132,7 @@ public class MemberInitViewModel extends ViewModel {
     }
 
     public void uploader(MemberInfo memberInfo) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         if (user != null) {
             String uid = user.getUid();
             db.collection("users").document(uid).set(memberInfo)
@@ -146,5 +158,48 @@ public class MemberInitViewModel extends ViewModel {
     public boolean isNicknameValid(String nickname) {
         return memberModel.isNicknameValid(nickname);
     }
+    public void withDraw(Context context){
+        // 컬렉션 참조 가져오기
+        CollectionReference usersRef = db.collection("users");
 
+        usersRef.document(user.getUid()).delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // 문서 삭제 성공
+                            // 메인페이지로 가는 코드
+                            Intent intent = new Intent(context, MainActivity.class);
+                            context.startActivity(intent);
+                        } else {
+                            // 문서 삭제 실패
+                            Exception e = task.getException();
+                            //showToast();
+                        }
+                    }
+                });
+    }
+
+    public void loadMemberInfo(){
+        CollectionReference usersRef = db.collection("users");
+        usersRef.document(user.getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                MemberInfo memberInfo = document.toObject(MemberInfo.class);
+                                memberInfoMutableLiveData.setValue(memberInfo);
+
+                            } else {
+                                // 문서가 존재하지 않을 때의 처리
+                            }
+                        } else {
+                            Exception e = task.getException();
+                            // showToast();
+                        }
+                    }
+                });
+    }
 }

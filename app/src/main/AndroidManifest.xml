@@ -51,7 +51,6 @@
         <activity android:name=".view.activity.WritePostActivity"/>
         <activity android:name=".view.activity.PostActivity"/>
         <activity android:name=".view.activity.AdminActivity"/>
-
         <activity android:name=".view.activity.TestDeepLearningActivity"/>
         <activity android:name=".view.activity.BoardListActivity"/>
 

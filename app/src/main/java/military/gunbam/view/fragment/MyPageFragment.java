@@ -1,7 +1,9 @@
 package military.gunbam.view.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,28 +11,25 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.lang.reflect.Member;
-import java.util.Objects;
-
 import military.gunbam.R;
-import military.gunbam.utils.Util;
+import military.gunbam.model.member.MemberInfo;
 import military.gunbam.view.activity.BoardListActivity;
-import military.gunbam.view.activity.LoginActivity;
 import military.gunbam.view.activity.MemberInitActivity;
-import military.gunbam.view.activity.PostActivity;
 import military.gunbam.viewmodel.MemberInitViewModel;
 import military.gunbam.viewmodel.UserViewModel;
 
 public class MyPageFragment extends Fragment {
+    private MemberInitViewModel memberInitViewModel;
+
     private UserViewModel userViewModel;
+    private MemberInfo memberInfo;
     public MyPageFragment() {
 
     }
@@ -38,6 +37,12 @@ public class MyPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_my_page, container, false);
+
+        memberInitViewModel = new ViewModelProvider(this).get(MemberInitViewModel.class);
+        memberInitViewModel.loadMemberInfo();
+        memberInitViewModel.getMemberInfo().observe(getViewLifecycleOwner(), member->{
+            memberInfo = member;
+        });
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         userViewModel.loadCurrentUser();
         userViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
@@ -50,13 +55,8 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.viewProfileButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(CalculatorFragment.class);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_calculator_main, new CalculatorFragment())
-                        .addToBackStack(null)
-                        .commit();
 
-
+                showMemberInfoPopup(memberInfo);
             }
         });
 
@@ -75,11 +75,9 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.viewCommentsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myStartActivity(BoardListActivity.class, "commentId",userViewModel.getCurrentUser().getValue().getUid());
-                /*getFragmentManager().beginTransaction()
-                        .replace(R.id.main_board_list_fragment, new PostActivity())
-                        .addToBackStack(null)
-                        .commit();*/
+                //댓글 작성시 parentCommentId 값을 입력되도록 수정해야함.
+
+
             }
         });
 
@@ -95,8 +93,6 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.deleteAccountButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MemberInitViewModel viewModel;
-                //viewModel.
                 showWithdrawPopup();
             }
         });
@@ -121,7 +117,7 @@ public class MyPageFragment extends Fragment {
     }
     private void showWithdrawPopup() {
         if (getActivity() != null) {
-            View popupView = getLayoutInflater().inflate(R.layout.withdraw_popup, null);
+            View popupView = getLayoutInflater().inflate(R.layout.popup_withdraw, null);
 
             PopupWindow popupWindow = new PopupWindow(
                     popupView,
@@ -133,16 +129,45 @@ public class MyPageFragment extends Fragment {
             Button btnCancelWithdraw = popupView.findViewById(R.id.btn_cancel_withdraw);
 
             btnConfirmWithdraw.setOnClickListener(v -> {
-                // 회원 탈퇴 로직 추가
-                // ...
-
-                // 팝업 닫기
+                memberInitViewModel.withDraw(getContext());
                 popupWindow.dismiss();
             });
 
             btnCancelWithdraw.setOnClickListener(v -> popupWindow.dismiss());
 
             popupWindow.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        }
+    }
+    private void showMemberInfoPopup(MemberInfo memberInfo) {
+
+        if (getActivity() != null) {
+            View popupView = getLayoutInflater().inflate(R.layout.popup_member_info, null);
+            TextView nicknameTextView = popupView.findViewById(R.id.nicknameTextView);
+            TextView nameTextView = popupView.findViewById(R.id.nameTextView);
+            TextView birthdateTextView = popupView.findViewById(R.id.birthdateTextView);
+
+            nicknameTextView.setText(memberInfo.getNickName());
+            nameTextView.setText(memberInfo.getName());
+            birthdateTextView.setText(memberInfo.getBirthDate());
+            PopupWindow popupWindow = new PopupWindow(
+                    popupView,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+
+
+            Button btnConfirmWithdraw = popupView.findViewById(R.id.btn_confirm_member_info);
+
+            btnConfirmWithdraw.setOnClickListener(v -> {
+                // 팝업 닫기
+                popupWindow.dismiss();
+            });
+
+            btnConfirmWithdraw.setOnClickListener(v -> popupWindow.dismiss());
+
+            popupWindow.showAtLocation(getView(), Gravity.CENTER, 0, 0);
+        }else{
+
         }
     }
 }
