@@ -28,6 +28,7 @@ import java.util.Map;
 import military.gunbam.R;
 import military.gunbam.view.fragment.ChattingFragment;
 
+//TODO Mock으로 해야할 듯...
 public class AdminActivity extends BasicActivity {
 
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
