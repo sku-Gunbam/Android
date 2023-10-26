@@ -2,5 +2,10 @@
   "dependencies": {
     "firebase-tools": "^12.7.0",
     "global": "^4.4.0"
+  },
+  "name": "my-package",
+  "scripts": {
+    "build": "babel src -d lib",
+    "test": "jest"
   }
 }
