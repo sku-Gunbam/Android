@@ -3,6 +3,9 @@ package military.gunbam.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -31,7 +34,8 @@ public class BoardListActivity extends BasicActivity {
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     private ArrayList<PostInfo> postList;
- //   private String boardName;
+    private ArrayList<PostInfo> commentsPostsList;
+    private String commentId;
     private String field;
     private String fieldValue;
     private MutableLiveData<ArrayList<PostInfo>> postListLiveData = new MutableLiveData<>();
@@ -54,7 +58,7 @@ public class BoardListActivity extends BasicActivity {
             textViewBoardName.setText(fieldValue);
         }else if(field.equals("publisher")){
             textViewBoardName.setText("내가 쓴 게시글");
-        }else if(field.equals("commentId")){
+        }else if(field.equals("commentAuthor")){
             textViewBoardName.setText("내가 쓴 댓글");
         }
 
@@ -79,6 +83,8 @@ public class BoardListActivity extends BasicActivity {
         commentListViewModel.getCommentListLiveData().observe(this, commentList ->{
 
         });
+
+
         // 스크롤 이벤트 및 초기 데이터 로딩 처리
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             // 스크롤 이벤트 처리 코드...
@@ -90,12 +96,19 @@ public class BoardListActivity extends BasicActivity {
                 // 스크롤 이벤트 처리 코드...
             }
         });
-        if(field.equals("boardName") || field.equals("publisher")) {
+        if(field.equals("boardName") || field.equals("publisher")) { // 내가 쓴 글
             // 초기 데이터 로딩
             boardListViewModel.loadPosts(false, field, fieldValue);
+
         }
-        else if(field.equals("commentId")){
-            commentListViewModel.loadComments(fieldValue);
+        else if(field.equals("commentAuthor")){ // 내가 쓴 댓글
+            commentListViewModel.loadCommentsPosts(fieldValue);  // commentId
+            commentListViewModel.getCommentIdLiveData().observe(this, getCommentId ->{
+                //boardListViewModel.loadPosts(false, "commentId", getCommentId);
+                boardListViewModel.loadCommentPosts(false,getCommentId);
+                //boardListViewModel.loadPosts(false, "publisher", getCommentId);
+            });
+
         }
         // 게시물 작성 버튼 클릭 이벤트
         findViewById(R.id.mainFloatingActionButton).setOnClickListener(new View.OnClickListener() {

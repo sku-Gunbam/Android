@@ -25,6 +25,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
@@ -41,6 +42,7 @@ import java.util.Date;
 
 import military.gunbam.FirebaseHelper;
 import military.gunbam.model.CommentInfo;
+import military.gunbam.model.PathCountSingleton;
 import military.gunbam.model.SuccessCountSingleton;
 import military.gunbam.view.activity.PostActivity;
 import military.gunbam.view.activity.WritePostActivity;
@@ -51,7 +53,7 @@ public class PostModel {
     private StorageReference storageRef;
     private FirebaseFirestore firebaseFirestore;
     private DocumentReference documentReference;
-    private int pathCount = 0;
+    private PathCountSingleton pathCountSingleton = PathCountSingleton.getInstance();
     private SuccessCountSingleton successCountSingleton = SuccessCountSingleton.getInstance();
     private final static String key = "index";
     public PostModel(){
@@ -68,12 +70,11 @@ public class PostModel {
         documentReference = firebaseFirestore.collection(collectionPath).document(documentID);
     }
     public void processText(String path,ArrayList<String> pathList, ArrayList<String> contentsList, ArrayList<String> formatList, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
-        formatList.add("text");
         String[] pathArray = path.split("\\.");
-        StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + "." + pathArray[pathArray.length - 1]);
+        StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCountSingleton.getPathCount() + "." + pathArray[pathArray.length - 1]);
 
         try {
-            InputStream stream = new FileInputStream(new File(pathList.get(pathCount)));
+            InputStream stream = new FileInputStream(new File(pathList.get(pathCountSingleton.getPathCount())));
             StorageMetadata metadata = new StorageMetadata.Builder().setCustomMetadata("index", "" + (contentsList.size() - 1)).build();
             UploadTask uploadTask = mountainImagesRef.putStream(stream, metadata);
 
@@ -107,7 +108,12 @@ public class PostModel {
         }
     }
     public void uploadImage(ArrayList<String> contentsList,byte[] data, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener){
-        StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCount + ".jpg");
+        StorageReference mountainImagesRef = storageRef.child("posts/" + documentReference.getId() + "/" + pathCountSingleton.getPathCount() + ".jpg");
+
+        Log.d("postModel테스트 getID",documentReference.getId());
+        Log.d("postModel테스트 getContents",postInfo.getContents().toString());
+
+
         StorageMetadata metadata = new StorageMetadata.Builder().setCustomMetadata("index", "" + (contentsList.size() - 1)).build();
         UploadTask uploadTask = mountainImagesRef.putBytes(data,metadata);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -120,10 +126,12 @@ public class PostModel {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 final int index = Integer.parseInt(taskSnapshot.getMetadata().getCustomMetadata(key));
+                Log.d("인덱스", index +"임.");
                 mountainImagesRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
                         successCountSingleton.decreaseSuccessCount();
+                        Log.d("URI값:",uri.toString());
                         contentsList.set(index, uri.toString());
                         if (successCountSingleton.getSuccessCount() == 0) {
                             PostInfo successPostInfo = postInfo;//new PostInfo(title, contentsList, formatList, user.getUid(), date, isAnonymous, recommendationCount, boardName);
@@ -202,4 +210,5 @@ public class PostModel {
                 .addOnSuccessListener(onSuccessListener)
                 .addOnFailureListener(onFailureListener);
     }
+
 }

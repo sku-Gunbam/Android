@@ -22,7 +22,9 @@ import military.gunbam.R;
 import military.gunbam.model.member.MemberInfo;
 import military.gunbam.view.activity.BoardListActivity;
 import military.gunbam.view.activity.MemberInitActivity;
+import military.gunbam.viewmodel.CommentListViewModel;
 import military.gunbam.viewmodel.MemberInitViewModel;
+import military.gunbam.viewmodel.PostViewModel;
 import military.gunbam.viewmodel.UserViewModel;
 
 public class MyPageFragment extends Fragment {
@@ -51,6 +53,7 @@ public class MyPageFragment extends Fragment {
             } else {
             }
         });
+
         // 회원정보 조회 버튼
         view.findViewById(R.id.viewProfileButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +79,8 @@ public class MyPageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //댓글 작성시 parentCommentId 값을 입력되도록 수정해야함.
-
+                String commentAuthor = userViewModel.getCurrentUser().getValue().getUid();
+                myStartActivity(BoardListActivity.class, "commentAuthor", commentAuthor);
 
             }
         });

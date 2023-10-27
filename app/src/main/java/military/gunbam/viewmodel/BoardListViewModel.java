@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -120,4 +122,41 @@ public class BoardListViewModel extends ViewModel {
                     updating = false;
                 });
     }
+    public void loadCommentPosts(final boolean clear, String documentName) {
+        if (updating) return;
+        updating = true;
+
+        ArrayList<PostInfo> postList = postListLiveData.getValue();
+        Date date = postList == null || postList.size() == 0 || clear ? new Date() : postList.get(postList.size() - 1).getCreatedAt();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("posts")
+                .whereEqualTo(FieldPath.documentId(), documentName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (clear) {
+                        postListLiveData.setValue(new ArrayList<>());
+                    }
+                    ArrayList<PostInfo> newPostList = postListLiveData.getValue();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        newPostList.add(new PostInfo(
+                                document.getData().get("title").toString(),
+                                (ArrayList<String>) document.getData().get("contents"),
+                                (ArrayList<String>) document.getData().get("formats"),
+                                document.getData().get("publisher").toString(),
+                                new Date(document.getDate("createdAt").getTime()),
+                                Boolean.parseBoolean(document.getData().get("isAnonymous").toString()),
+                                (ArrayList<String>) document.getData().get("recommend"),
+                                document.getData().get("boardName").toString(),
+                                document.getId()
+                        ));
+                        postListLiveData.setValue(newPostList);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                });
+        updating = false;
+    }
+
 }

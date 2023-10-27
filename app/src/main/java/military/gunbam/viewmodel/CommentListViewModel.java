@@ -1,34 +1,44 @@
 package military.gunbam.viewmodel;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import military.gunbam.model.CommentInfo;
+import military.gunbam.model.Post.PostInfo;
 
 public class CommentListViewModel extends ViewModel {
     private MutableLiveData<List<CommentInfo>> commentListLiveData = new MutableLiveData<>();
+    private MutableLiveData<String> commentIdLiveData = new MutableLiveData<>();
     private FirebaseFirestore firestore;
     private List<CommentInfo> commentList;
-
     public LiveData<List<CommentInfo>> getCommentListLiveData() {
         return commentListLiveData;
     }
-
+    public LiveData<String> getCommentIdLiveData() {
+        return commentIdLiveData;
+    }
     String TAG = "CommentListViewModel";
 
     public CommentListViewModel() {
@@ -86,6 +96,24 @@ public class CommentListViewModel extends ViewModel {
                             }
                         } else {
                             // Handle error
+                        }
+                    }
+                });
+    }
+    public void loadCommentsPosts(String commentAuthor) {
+        firestore.collection("comments")
+                .whereEqualTo("commentAuthor", commentAuthor)
+                .orderBy("commentUploadTime", Query.Direction.ASCENDING) // 색인 사용
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String commentId = document.getData().get("commentId").toString();
+                                //getPostPublisher(commentId);
+                                commentIdLiveData.setValue(commentId);
+                            }
                         }
                     }
                 });

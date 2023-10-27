@@ -71,4 +71,6 @@ public class PostViewModel extends ViewModel {
     public void addRecommend(String collectionPath, String postId, String filed, ArrayList<String> recommend, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener){
         postModel.addRecommend(collectionPath,postId,filed,recommend,onSuccessListener,onFailureListener);
     }
+
+
 }

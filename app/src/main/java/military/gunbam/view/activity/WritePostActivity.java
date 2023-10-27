@@ -8,8 +8,10 @@ import static military.gunbam.utils.Util.isStorageUrl;
 import static military.gunbam.utils.Util.showToast;
 import static military.gunbam.utils.Util.storageUrlToName;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -30,6 +32,8 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -61,6 +65,7 @@ import java.util.Date;
 import java.util.List;
 
 import military.gunbam.R;
+import military.gunbam.model.PathCountSingleton;
 import military.gunbam.model.Post.PostInfo;
 import military.gunbam.model.SuccessCountSingleton;
 import military.gunbam.view.ContentsItemView;
@@ -84,7 +89,6 @@ public class WritePostActivity extends AppCompatActivity {
     private EditText contentsEditText;
     private EditText titleEditText;
     private PostInfo postInfo;
-    private int pathCount=0;
     private CheckBox anonymousCheckBox;
     private boolean isAnonymous = false;
     private ImageButton writePostBackButton;
@@ -92,6 +96,7 @@ public class WritePostActivity extends AppCompatActivity {
     private final ArrayList<String> contentsList = new ArrayList<>();
     private final ArrayList<String> formatList = new ArrayList<>();
     private SuccessCountSingleton successCountSingleton = SuccessCountSingleton.getInstance();
+    private PathCountSingleton pathCountSingleton = PathCountSingleton.getInstance();
     private static final String modelPath = "model2.tflite";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,10 +165,13 @@ public class WritePostActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d("엑티비티 결과 requestCode:", requestCode+"");
         switch (requestCode) {
             case 0:
                 if (resultCode == Activity.RESULT_OK) {
                     String path = data.getStringExtra(INTENT_PATH);
+                    //Log.d("테스트 Path값:",path);
                     pathList.add(path);
 
                     ContentsItemView contentsItemView = new ContentsItemView(this);
@@ -196,7 +204,9 @@ public class WritePostActivity extends AppCompatActivity {
             case 1:
                 if (resultCode == Activity.RESULT_OK) {
                     String path = data.getStringExtra(INTENT_PATH);
+                    Log.d("테스트:","Path값:" + path );
                     pathList.set(parent.indexOfChild((View) selectedImageVIew.getParent()) - 1, path);
+
                     Glide.with(this).load(path).override(1000).into(selectedImageVIew);
                 }
                 break;
@@ -279,7 +289,7 @@ public class WritePostActivity extends AppCompatActivity {
 
             }
             //final Date date = postInfo == null ? new Date() : postInfo.getCreatedAt();
-
+            Log.d("WritePostAcitivty",parent.getChildCount()+"임.");
             for (int i = 0; i < parent.getChildCount(); i++) {
                 LinearLayout linearLayout = (LinearLayout) parent.getChildAt(i);
                 for (int j = 0; j < linearLayout.getChildCount(); j++) {
@@ -289,8 +299,8 @@ public class WritePostActivity extends AppCompatActivity {
                         if (text.length() > 0) {
                             contentsList.add(text);
                             formatList.add("text");
-                        } else if (!isStorageUrl(pathList.get(pathCount))) {
-                            String path = pathList.get(pathCount);
+                        } else if (!isStorageUrl(pathList.get(pathCountSingleton.getPathCount()))) {
+                            String path = pathList.get(pathCountSingleton.getPathCount());
                             successCountSingleton.increaseSuccessCount();
                             contentsList.add(path);
 
@@ -300,7 +310,7 @@ public class WritePostActivity extends AppCompatActivity {
                                 formatList.add("image");
                                 Log.d("WritePostActivity",isImageFile(path) + path);
 
-                                processImage(deepLearningResultBitmap, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
+                                processImage(path, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName));
 
                             }
                             processText(path, new PostInfo(title,contentsList,formatList,userViewModel.getCurrentUser().getValue().getUid(),date,isAnonymous,recommend,boardName)); //
@@ -369,17 +379,26 @@ public class WritePostActivity extends AppCompatActivity {
             }
         });
     }
-    private void processImage(Bitmap deepLearningResultBitmap, PostInfo postInfo) {
-        //Bitmap bitmap = decodeImageFile(path);
-        Bitmap bitmap = deepLearningResultBitmap;
-        Log.d("processImage 실행됨","테스트");
+    private void processImage(String path, PostInfo postInfo) {
+        Bitmap bitmap = decodeImageFile(path);
+        //Bitmap bitmap = deepLearningResultBitmap;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        Log.d("path값:",path);
         byte[] data = baos.toByteArray();
+        Log.d("processImage","실행");
+
+        File file = new File("/storage/emulated/0/Pictures/KakaoTalk/1679395231883.jpg");
+        if (file.exists()) {
+            Log.d("processImage 파일이 존재함","존재함");
+        } else {
+            Log.d("processImage 파일이 존재안함","존재안함");
+        }
         writePostViewModel.uploadImage(contentsList, data, postInfo, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid){
                 Log.d("WritePostActivity","processImage 테스트 성공");
+
                 processSuccess();
             }
         }, new OnFailureListener() {
