@@ -36,7 +36,7 @@ import military.gunbam.viewmodel.DeepLearningViewModel;
 import military.gunbam.viewmodel.DeepLearningViewModelFactory;
 
 public class TestDeepLearningActivity extends BasicActivity {
-    private static final int PICK_IMAGE_REQUEST = 1;
+    public static final int PICK_IMAGE_REQUEST = 1;
     private static final int PERMISSION_REQUEST_CODE = 2;
     private File file;
     private String fileName = null;
@@ -85,7 +85,7 @@ public class TestDeepLearningActivity extends BasicActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {

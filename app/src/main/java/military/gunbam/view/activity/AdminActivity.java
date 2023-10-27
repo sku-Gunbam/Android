@@ -32,6 +32,7 @@ import military.gunbam.view.fragment.ChattingFragment;
 import military.gunbam.viewmodel.AdminViewModel;
 import military.gunbam.viewmodel.UserViewModel;
 
+//TODO Mock으로 해야할 듯...
 public class AdminActivity extends BasicActivity {
     private UserViewModel userViewModel;
     private AdminViewModel adminViewModel;
