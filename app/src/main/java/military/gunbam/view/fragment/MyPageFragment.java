@@ -12,14 +12,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.lang.reflect.Member;
-
 import military.gunbam.R;
-import military.gunbam.utils.Util;
-import military.gunbam.view.activity.BoardListActivity;
-import military.gunbam.view.activity.LoginActivity;
-import military.gunbam.view.activity.MemberInitActivity;
-import military.gunbam.view.activity.PostActivity;
+import military.gunbam.view.activity.PostListActivity;
 import military.gunbam.viewmodel.MemberInitViewModel;
 
 public class MyPageFragment extends Fragment {
@@ -45,7 +39,7 @@ public class MyPageFragment extends Fragment {
             public void onClick(View v) {
                 //String publisher= "";
                 String publisher = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                myStartActivity(BoardListActivity.class, "publisher", publisher);
+                myStartActivity(PostListActivity.class, "publisher", publisher);
             }
 
         });
@@ -54,7 +48,7 @@ public class MyPageFragment extends Fragment {
         view.findViewById(R.id.viewCommentsButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //myStartActivity(BoardListActivity.class, "publisher",);
+                //myStartActivity(PostListActivity.class, "publisher",);
                 /*getFragmentManager().beginTransaction()
                         .replace(R.id.main_board_list_fragment, new PostActivity())
                         .addToBackStack(null)

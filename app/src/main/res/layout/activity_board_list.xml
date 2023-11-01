@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <TextView
@@ -11,13 +12,15 @@
         android:id="@+id/tvTitle"
         android:textSize="25dp"
         android:padding="10dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:text="게시판 이름"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/tvTitle">
+        android:layout_below="@+id/tvTitle"
+        tools:listitem="@layout/item_post" >
     </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

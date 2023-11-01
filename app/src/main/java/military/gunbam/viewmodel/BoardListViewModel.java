@@ -1,7 +1,5 @@
 package military.gunbam.viewmodel;
 
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -10,28 +8,27 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import military.gunbam.FirebaseHelper;
-import military.gunbam.listener.OnPostListener;
-import military.gunbam.model.Post.PostInfo;
-import military.gunbam.view.activity.WritePostActivity;
+import military.gunbam.model.BoardInfo;
 
 public class BoardListViewModel extends ViewModel {
-
-    private static final String TAG = "BoardListViewModel";
+    private boolean loadingBasic;
+    private boolean loadingUnit;
+    private final String TAG = "BoardListViewModel";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore;
 
-    private MutableLiveData<ArrayList<PostInfo>> postListLiveData = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<BoardInfo>> boardListLiveDataBasic = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<BoardInfo>> boardListLiveDataUnit = new MutableLiveData<>();
     private boolean updating;
-    private boolean topScrolled;
     private FirebaseHelper firebaseHelper;
 
     private MutableLiveData<Boolean> isAdmin = new MutableLiveData<>();
@@ -39,85 +36,68 @@ public class BoardListViewModel extends ViewModel {
     public BoardListViewModel() {
         mAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
-        postListLiveData.setValue(new ArrayList<>());
+        boardListLiveDataBasic.setValue(new ArrayList<>());
+        boardListLiveDataUnit.setValue(new ArrayList<>());
     }
 
-    public LiveData<ArrayList<PostInfo>> getPostListLiveData() {
-        return postListLiveData;
+    public LiveData<ArrayList<BoardInfo>> getBoardListLiveData(boolean isBasic) {
+        return isBasic ? boardListLiveDataBasic : boardListLiveDataUnit;
     }
 
-    // 게시물 목록 다시 불러오기
-    public void refreshPosts(String field, String boardName) {
-        loadPosts(true, field, boardName); // true를 전달하여 데이터를 초기화하고 새로 불러오도록 합니다.
-    }
+    public void loadBoardBasic(boolean clear, boolean isBasic) {
+        if ((isBasic && loadingBasic) || (!isBasic && loadingUnit)) {
+            return; // 이미 데이터를 로딩 중이면 무시
+        }
 
-    // 게시물 작성 화면으로 이동
-    public void navigateToWritePost(Context context) {
-        Intent intent = new Intent(context, WritePostActivity.class);
-        intent.putExtra("boardName", "자유게시판");
-        context.startActivity(intent);
-    }
+        if (isBasic) {
+            loadingBasic = true;
+        } else {
+            loadingUnit = true;
+        }
+        String documentName = isBasic ? "boardBasic" : "boardUnit";
+        Log.d(TAG, "loadBoardBasic - Document Name: " + documentName);
 
-    // 게시물 삭제 메서드
-    public void deletePost(PostInfo postInfo) {
-        // FirebaseHelper를 사용하여 게시물 삭제
-        firebaseHelper.setOnPostListener(new OnPostListener() {
-            @Override
-            public void onDelete(PostInfo postInfo) {
-                // 게시물 삭제 후에 필요한 처리
-                // 예: 화면 업데이트 등
-                Log.d("로그: ", "삭제 성공");
+        DocumentReference documentReference = firebaseFirestore.collection("boards")
+                .document(documentName);
+
+        documentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (clear) {
+                    ArrayList<BoardInfo> newBoardList = new ArrayList<>();
+                    if (isBasic) {
+                        boardListLiveDataBasic.setValue(newBoardList);
+                    } else {
+                        boardListLiveDataUnit.setValue(newBoardList);
+                    }
+                }
+
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    ArrayList<BoardInfo> newBoardList = new ArrayList<>();
+                    ArrayList<String> boardListData = (ArrayList<String>) document.getData().get("boardList");
+
+                    if (boardListData != null) {
+                        for (String item : boardListData) {
+                            newBoardList.add(new BoardInfo(item));
+                        }
+
+                        if (isBasic) {
+                            boardListLiveDataBasic.setValue(newBoardList);
+                        } else {
+                            boardListLiveDataUnit.setValue(newBoardList);
+                        }
+                    }
+                } else {
+                    Log.d(TAG, "No such document");
+                }
+            } else {
+                Log.d(TAG, "Error getting document: ", task.getException());
             }
-
-            @Override
-            public void onModify() {
-                // 게시물 수정 후에 필요한 처리
-                Log.d("로그: ", "수정 성공");
+            if (isBasic) {
+                loadingBasic = false;
+            } else {
+                loadingUnit = false;
             }
         });
-
-        // 게시물 삭제 로직 호출
-        firebaseHelper.storageDelete(postInfo);
-    }
-
-    public void loadPosts(final boolean clear, String field, String fieldValue) {
-        if (updating) return;
-        updating = true;
-
-        ArrayList<PostInfo> postList = postListLiveData.getValue();
-        Date date = postList == null || postList.size() == 0 || clear ? new Date() : postList.get(postList.size() - 1).getCreatedAt();
-
-        CollectionReference collectionReference = firebaseFirestore.collection("posts");
-        collectionReference
-                .whereEqualTo(field, fieldValue)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .whereLessThan("createdAt", date)
-                //.limit(10)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        if (clear) {
-                            postListLiveData.setValue(new ArrayList<>());
-                        }
-                        ArrayList<PostInfo> newPostList = postListLiveData.getValue();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            newPostList.add(new PostInfo(
-                                    document.getData().get("title").toString(),
-                                    (ArrayList<String>) document.getData().get("contents"),
-                                    (ArrayList<String>) document.getData().get("formats"),
-                                    document.getData().get("publisher").toString(),
-                                    new Date(document.getDate("createdAt").getTime()),
-                                    Boolean.parseBoolean(document.getData().get("isAnonymous").toString()),
-                                    (ArrayList<String>) document.getData().get("recommend"),
-                                    document.getData().get("boardName").toString(),
-                                    document.getId()
-                            ));
-                        }
-                        postListLiveData.setValue(newPostList);
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                    updating = false;
-                });
     }
 }

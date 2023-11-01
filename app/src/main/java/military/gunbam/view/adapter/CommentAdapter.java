@@ -1,7 +1,6 @@
 package military.gunbam.view.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,6 @@ import java.util.Locale;
 import military.gunbam.R;
 import military.gunbam.model.CommentInfo;
 import military.gunbam.view.activity.PostActivity;
-import military.gunbam.view.fragment.CommentListFragment;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
     private List<CommentInfo> commentList;
@@ -43,7 +41,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     @Override
     public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.comment_item, parent, false);
+                .inflate(R.layout.item_comment, parent, false);
         return new CommentViewHolder(itemView);
     }
 

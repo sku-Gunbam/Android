@@ -1,13 +1,10 @@
 package military.gunbam.view.activity;
 
-import static military.gunbam.view.fragment.CommentListFragment.loadComments;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -242,7 +239,7 @@ public class PostActivity extends BasicActivity {
                                         imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
                                     }
                                 });
-                        loadComments(postId);
+                        CommentListFragment.loadComments(postId);
                         countUpdate();
                     } else {
                         showToast(PostActivity.this, "댓글을 입력해주세요.");

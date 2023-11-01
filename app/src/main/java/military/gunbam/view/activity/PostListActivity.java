@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import military.gunbam.R;
 import military.gunbam.listener.OnPostListener;
 import military.gunbam.model.Post.PostInfo;
-import military.gunbam.view.adapter.BoardListAdapter;
-import military.gunbam.viewmodel.BoardListViewModel;
+import military.gunbam.view.adapter.PostListAdapter;
+import military.gunbam.viewmodel.PostListViewModel;
 
-public class BoardListActivity extends BasicActivity {
+public class PostListActivity extends BasicActivity {
 
-    private static final String TAG = "BoardListActivity";
+    private final String TAG = "PostListActivity";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
@@ -36,8 +36,8 @@ public class BoardListActivity extends BasicActivity {
     private MutableLiveData<ArrayList<PostInfo>> postListLiveData = new MutableLiveData<>();
     private boolean updating;
 
-    private BoardListAdapter boardListAdapter;
-    private BoardListViewModel boardListViewModel;
+    private PostListAdapter postListAdapter;
+    private PostListViewModel postListViewModel;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,19 +59,19 @@ public class BoardListActivity extends BasicActivity {
         postList = new ArrayList<>();
 
         // ViewModel 초기화
-        boardListViewModel = new ViewModelProvider(this).get(BoardListViewModel.class);
+        postListViewModel = new ViewModelProvider(this).get(PostListViewModel.class);
 
         // RecyclerView 및 Adapter 설정
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(BoardListActivity.this));
-        boardListAdapter = new BoardListAdapter(BoardListActivity.this, new ArrayList<>());
-        recyclerView.setAdapter(boardListAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(PostListActivity.this));
+        postListAdapter = new PostListAdapter(PostListActivity.this, new ArrayList<>());
+        recyclerView.setAdapter(postListAdapter);
 
         // ViewModel에서 LiveData를 관찰하여 데이터 업데이트를 처리
-        boardListViewModel.getPostListLiveData().observe(this, postList -> {
+        postListViewModel.getPostListLiveData().observe(this, postList -> {
             // Adapter에 데이터를 설정하여 화면 업데이트
-            boardListAdapter.setPostList(postList);
+            postListAdapter.setPostList(postList);
         });
 
         // 스크롤 이벤트 및 초기 데이터 로딩 처리
@@ -87,23 +87,23 @@ public class BoardListActivity extends BasicActivity {
         });
 
         // 초기 데이터 로딩
-        boardListViewModel.loadPosts(false,field, fieldValue);
+        postListViewModel.loadPosts(false,field, fieldValue);
 
         // 게시물 작성 버튼 클릭 이벤트
         findViewById(R.id.mainFloatingActionButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateToWritePost(BoardListActivity.this);
+                navigateToWritePost(PostListActivity.this);
             }
         });
 
         // 게시물 수정 및 삭제 버튼 클릭 이벤트
-        boardListAdapter.setOnPostListener(new OnPostListener() {
+        postListAdapter.setOnPostListener(new OnPostListener() {
             @Override
             public void onDelete(PostInfo postInfo) {
                 postList.remove(postInfo);
-                boardListAdapter.notifyDataSetChanged();
-                boardListViewModel.refreshPosts(field, fieldValue);
+                postListAdapter.notifyDataSetChanged();
+                postListViewModel.refreshPosts(field, fieldValue);
             }
 
             @Override

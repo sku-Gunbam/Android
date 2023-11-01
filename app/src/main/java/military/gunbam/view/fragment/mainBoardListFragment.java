@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import military.gunbam.R;
-import military.gunbam.view.activity.BoardListActivity;
+import military.gunbam.view.activity.PostListActivity;
 
 public class mainBoardListFragment extends Fragment {
     ViewGroup viewGroup;
@@ -31,7 +31,7 @@ public class mainBoardListFragment extends Fragment {
             Button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    myStartActivity(BoardListActivity.class, field, Button.getText().toString().replace("\n", ""));
+                    myStartActivity(PostListActivity.class, field, Button.getText().toString().replace("\n", ""));
                     Log.e(TAG, "" + Button.getText().toString());
                 }
             });
