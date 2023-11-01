@@ -40,7 +40,18 @@
                 android:hint="제목"
                 android:id="@+id/titleTextView"
                 android:textSize="20dp"
-                android:padding="10dp"/>
+                android:padding="10dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"/>
+
+            <ImageView
+                android:id="@+id/account_discharge_img"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/black" />
+
 
             <military.gunbam.view.ReadContentsView
                 android:layout_width="match_parent"

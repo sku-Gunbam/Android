@@ -7,7 +7,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,20 +26,21 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+import military.gunbam.FirebaseHelper;
 import military.gunbam.R;
 import military.gunbam.listener.OnPostListener;
 import military.gunbam.model.Post.PostInfo;
-import military.gunbam.FirebaseHelper;
 import military.gunbam.view.ReadContentsView;
 import military.gunbam.view.activity.PostActivity;
 import military.gunbam.view.activity.WritePostActivity;
 
-public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder> {
+public class PostListAdapter extends RecyclerView.Adapter<PostListAdapter.MainViewHolder> {
     private ArrayList<PostInfo> mDataset;
     private Activity activity;
     private FirebaseHelper firebaseHelper;
     private final int MORE_INDEX = 2;
-    String TAG = "HomeAdapter";
+
+    String TAG = "PostListAdapter";
 
     static class MainViewHolder extends RecyclerView.ViewHolder {
         CardView cardView;
@@ -54,7 +55,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
         notifyDataSetChanged();
     }
 
-    public HomeAdapter(Activity activity, ArrayList<PostInfo> myDataset) {
+    public PostListAdapter(Activity activity, ArrayList<PostInfo> myDataset) {
         this.mDataset = myDataset;
         this.activity = activity;
 
@@ -97,29 +98,15 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
     @Override
     public void onBindViewHolder(@NonNull final MainViewHolder holder, int position) {
         CardView cardView = holder.cardView;
-
         TextView titleTextView, tvRecommendCount, tvCommentCount;
-        ImageView ivRecommend, ivComment;
-
         titleTextView = cardView.findViewById(R.id.postTitleTextView);
         tvRecommendCount = cardView.findViewById(R.id.tvRecommendCount);
         tvCommentCount = cardView.findViewById(R.id.tvCommentCount);
-        ivComment = cardView.findViewById(R.id.ivComment);
-        ivRecommend = cardView.findViewById(R.id.ivRecommend);
 
         PostInfo postInfo = mDataset.get(position);
         titleTextView.setText(postInfo.getTitle());
-
-        // 추천이 있을 경우에만 표시
-        if (postInfo.getRecommend().size() > 0) {
-            tvRecommendCount.setVisibility(View.VISIBLE);
-            ivRecommend.setVisibility(View.VISIBLE);
-            tvRecommendCount.setText("" + postInfo.getRecommend().size());
-        } else {
-            tvRecommendCount.setVisibility(View.GONE);
-            ivRecommend.setVisibility(View.GONE);
-        }
-        countCommentsWithId(postInfo.getId(),tvCommentCount, ivComment);
+        tvRecommendCount.setText("" + postInfo.getRecommend().size());
+        countCommentsWithId(postInfo.getId(),tvCommentCount);
 
         ReadContentsView readContentsVIew = cardView.findViewById(R.id.readContentsView);
         LinearLayout contentsLayout = cardView.findViewById(R.id.contentsLayout);
@@ -167,7 +154,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
         popup.show();
     }
 
-    public static void countCommentsWithId(String postId, TextView tvCommentCount, ImageView ivComment) {
+    public static void countCommentsWithId(String postId, TextView tvCommentCount) {
         // Firestore 인스턴스 얻기
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -185,15 +172,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
                     // 쿼리 결과로부터 문서 개수 가져오기
                     int commentCount = task.getResult().size();
 
-                    // 댓글이 있을 경우에만 표시
-                    if (commentCount > 0) {
-                        tvCommentCount.setVisibility(View.VISIBLE);
-                        tvCommentCount.setText("" + commentCount);
-                        ivComment.setVisibility(View.VISIBLE);
-                    } else {
-                        tvCommentCount.setVisibility(View.GONE);
-                        ivComment.setVisibility(View.GONE);
-                    }
+                    // 결과 사용 예시
+                    // count 값을 원하는 대로 활용하면 됩니다.
+                    // 예: TextView에 출력하거나 다른 처리 수행
+                    tvCommentCount.setText("" + commentCount);
                 } else {
                     // 쿼리 실패 시 예외 처리
                     Exception e = task.getException();
@@ -207,7 +189,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
 
     private void myStartActivity(Class c, PostInfo postInfo) {
         Intent intent = new Intent(activity, c);
-        intent.putExtra("boardName", postInfo.getBoardName());
         intent.putExtra("postInfo", postInfo);
         activity.startActivity(intent);
     }
