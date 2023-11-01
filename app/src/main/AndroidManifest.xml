@@ -52,7 +52,7 @@
         <activity android:name=".view.activity.PostActivity"/>
         <activity android:name=".view.activity.AdminActivity"/>
         <activity android:name=".view.activity.TestDeepLearningActivity"/>
-        <activity android:name=".view.activity.BoardListActivity"/>
+        <activity android:name=".view.activity.PostListActivity"/>
 
         <meta-data
             android:name="com.kakao.sdk.AppKey"

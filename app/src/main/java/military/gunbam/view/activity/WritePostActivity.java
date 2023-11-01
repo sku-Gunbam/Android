@@ -71,7 +71,7 @@ public class WritePostActivity extends AppCompatActivity {
     private PathCountSingleton pathCountSingleton = PathCountSingleton.getInstance();
     private int pathCount;
     private PostModel postModel = new PostModel();
-    private static final String modelPath = "model2.tflite";
+    private static final String modelPath = "model3.tflite";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

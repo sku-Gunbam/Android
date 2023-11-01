@@ -101,6 +101,31 @@ public class ReadContentsView extends LinearLayout {
                     Glide.with(this).load(contents).override(1000).thumbnail(0.1f).into(imageView);
                 } else {
                     TextView textView = (TextView) layoutInflater.inflate(R.layout.view_contents_text, this, false);
+
+                    // 글의 내용이 2줄 이상인 경우에는 2줄까지만 보여주고 "더보기..." 추가
+                    if (contents.split("\n").length > 2) {
+                        String[] lines = contents.split("\n", 3); // 3줄까지만 가져옴
+                        contents = lines[0] + "\n" + lines[1] + "\n더보기...";
+                        int finalI = i;
+                        textView.setOnClickListener(v -> {
+                            // 클릭 시 전체 내용 표시
+                            textView.setText(contentsList.get(finalI));
+                            textView.setOnClickListener(null); // 더 이상 클릭 리스너가 필요 없으므로 해제
+                        });
+                    }
+
+                    // 글의 내용이 50글자 이상인 경우에는 50글자까지만 보여주고 "더보기..." 추가
+                    if (contents.length() > 50) {
+                        contents = contents.substring(0, 50) + "...\n더보기...";
+                        int finalI1 = i;
+                        textView.setOnClickListener(v -> {
+                            // 클릭 시 전체 내용 표시
+                            textView.setText(contentsList.get(finalI1));
+                            textView.setOnClickListener(null); // 더 이상 클릭 리스너가 필요 없으므로 해제
+                        });
+                    }
+
+
                     textView.setText(contents);
                     contentsLayout.addView(textView);
                 }

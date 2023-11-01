@@ -51,7 +51,7 @@ public class TestDeepLearningActivity extends BasicActivity {
         setContentView(R.layout.activity_testdeeplearning);
 
         Context context = getApplication();
-        String modelPath = "model2.tflite";
+        String modelPath = "model3.tflite";
         deepLearningViewModel = new ViewModelProvider(this, new DeepLearningViewModelFactory(context, modelPath)).get(DeepLearningViewModel.class);
         deepLearningViewModel = new DeepLearningViewModel(this, modelPath);
         imgViewResult = findViewById(R.id.img_view_result);

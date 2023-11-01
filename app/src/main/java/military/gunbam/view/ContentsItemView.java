@@ -44,7 +44,7 @@ public class ContentsItemView extends LinearLayout {
     private WritePostViewModel writePostViewModel;
     private Context context;
     private Bitmap deepLearningBitmap;
-    private static String modelPath = "model2.tflite";
+    private static String modelPath = "model3.tflite";
     public ContentsItemView(Context context) {
         super(context);
         initView();

@@ -35,7 +35,7 @@ import military.gunbam.viewmodel.MemberInitViewModel;
 public class CommentListFragment extends Fragment {
     private static final String TAG = "CommentListFragment";
     private RecyclerView commentRecyclerView;
-    private static CommentAdapter commentAdapter;
+    private  CommentAdapter commentAdapter;
     private static ProgressBar progressBar;
     private static CommentListViewModel commentListViewModel;
 

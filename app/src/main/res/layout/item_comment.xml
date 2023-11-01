@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/reply_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_reply_24"
+        android:rotation="180"
+        android:padding="5dp"
+        app:tint="@color/green"
+        android:visibility="gone"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="15dp"
+        android:layout_margin="5dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/commentAuthorTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/writer"
+                    android:textSize="8pt"
+                    android:layout_gravity="center"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    app:cardCornerRadius="15dp"
+                    android:layout_margin="3dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <ImageButton
+                            android:id="@+id/replyButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:backgroundTint="@color/transparent"
+                            android:contentDescription="@string/comment"
+                            android:src="@drawable/ic_baseline_add_comment_24"
+                            tools:ignore="TouchTargetSizeCheck" />
+
+                        <ImageView
+                            android:id="@+id/commentContour"
+                            android:layout_width="2dp"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/black"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            app:tint="@color/green" />
+
+                        <ImageButton
+                            android:id="@+id/recommendButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:backgroundTint="@color/transparent"
+                            android:contentDescription="@string/recommend"
+                            android:src="@drawable/bullet_shape"
+                            tools:ignore="TouchTargetSizeCheck" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/commentContentTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/content" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/commentUploadTimeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/uploadDate"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/bullet_shape"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:id="@+id/ivRecommend"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textStyle="bold"
+                    android:textColor="@color/green"
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/tvRecommendCount"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

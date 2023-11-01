@@ -2,7 +2,6 @@ package military.gunbam.view.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -74,7 +73,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MainViewHolder
     @NonNull
     @Override
     public MainViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        CardView cardView = (CardView) LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item, parent, false);
+        CardView cardView = (CardView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
         final MainViewHolder mainViewHolder = new MainViewHolder(cardView);
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
