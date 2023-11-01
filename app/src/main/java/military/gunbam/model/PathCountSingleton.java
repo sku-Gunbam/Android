@@ -1,16 +1,20 @@
 package military.gunbam.model;
 
+import android.util.Log;
+
 public class PathCountSingleton {
     private static PathCountSingleton instance;
 
-    private int pathCount = 0;
+    private static int pathCount = 0;
 
     private PathCountSingleton() {
     }
 
-    public static synchronized PathCountSingleton getInstance() {
+    public static PathCountSingleton getInstance() {
         if (instance == null) {
-            instance = new PathCountSingleton();
+            synchronized(PathCountSingleton.class) {
+                instance = new PathCountSingleton();
+            }
         }
         return instance;
     }
@@ -20,12 +24,6 @@ public class PathCountSingleton {
     }
     public void setPathCount(int count) {
         this.pathCount = count;
-    }
-    public void increasePathCount(){
-        this.pathCount++;
-    }
-    public void decreasePathCount(){
-        this.pathCount--;
     }
 
 }

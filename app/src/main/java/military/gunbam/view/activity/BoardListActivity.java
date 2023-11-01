@@ -104,9 +104,7 @@ public class BoardListActivity extends BasicActivity {
         else if(field.equals("commentAuthor")){ // 내가 쓴 댓글
             commentListViewModel.loadCommentsPosts(fieldValue);  // commentId
             commentListViewModel.getCommentIdLiveData().observe(this, getCommentId ->{
-                //boardListViewModel.loadPosts(false, "commentId", getCommentId);
                 boardListViewModel.loadCommentPosts(false,getCommentId);
-                //boardListViewModel.loadPosts(false, "publisher", getCommentId);
             });
 
         }

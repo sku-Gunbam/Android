@@ -76,7 +76,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryV
         CardView cardView = holder.cardView;
         ImageView imageView = cardView.findViewById(R.id.galleryItemImageView);
 
-        Log.d("Glide:","posit:"+position+"mData:"+mDataset.get(position));
         Glide.with(activity)
                 .load(mDataset.get(position))
                 .centerCrop()

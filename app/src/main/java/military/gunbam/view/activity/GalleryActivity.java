@@ -99,7 +99,6 @@ public class GalleryActivity extends BasicActivity {
 
         while (cursor.moveToNext()) {
             PathOfImage = cursor.getString(column_index_data);
-
             listOfAllImages.add(PathOfImage);
         }
         return listOfAllImages;

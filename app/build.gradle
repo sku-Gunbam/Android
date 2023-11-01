@@ -36,10 +36,12 @@ android {
     dataBinding {
         enabled = true
     }
-
     packagingOptions {
-        exclude 'lib/x86/libmediapipe_tasks_vision_jni.so'
+        jniLibs {
+            excludes += ['lib/x86/libmediapipe_tasks_vision_jni.so']
+        }
     }
+
 }
 
 dependencies {

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -42,7 +43,7 @@ public class WritePostViewModel extends ViewModel {
     private MutableLiveData<Boolean> anonymousLiveData = new MutableLiveData<>();
     private MutableLiveData<Boolean> loadingStatus = new MutableLiveData<>();
     private MutableLiveData<Exception> error = new MutableLiveData<>();
-
+    private MutableLiveData<Bitmap> bitmapLiveData = new MutableLiveData<>();
     // 타이틀 설정
     public void setTitle(String title) {
         titleLiveData.setValue(title);
@@ -73,13 +74,11 @@ public class WritePostViewModel extends ViewModel {
         return anonymousLiveData;
     }
 
-    public LiveData<Boolean> getLoadingStatus() {
-        return loadingStatus;
-    }
-
     public LiveData<Exception> getError() {
         return error;
     }
+
+
 
     public void storeUpload(PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
         loadingStatus.setValue(true);
@@ -92,15 +91,29 @@ public class WritePostViewModel extends ViewModel {
     public void setDocumentReference(String collectionPath) {
         postModel.setDocumentReference(collectionPath);
     }
-    public void processText(String path, ArrayList<String> pathList, ArrayList<String> contentsList, ArrayList<String> formatList, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
-        postModel.processText(path, pathList, contentsList,formatList, postInfo, voidOnSuccessListener,onFailureListener);
-    }
 
-    public void uploadImage(ArrayList<String> contentsList, byte[] data, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
-        postModel.uploadImage(contentsList, data,postInfo,voidOnSuccessListener,onFailureListener);
+    public void uploadImage(int pathCount, ArrayList<String> contentsList, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener) {
+        postModel.uploadImage(pathCount, contentsList,postInfo,voidOnSuccessListener,onFailureListener);
     }
     public void deletePost(String path, PostInfo postInfo, OnSuccessListener<Void> voidOnSuccessListener, OnFailureListener onFailureListener){
         postModel.deletePost(path, postInfo,voidOnSuccessListener,onFailureListener);
+    }
+
+    public void setBimap(Bitmap bitmap) {;
+        Log.d("비트맵 WritePost 2차",bitmap.toString());
+        postModel.setBitmap(bitmap);
+    }
+
+    public void addBitmapList(Bitmap bitmap){
+        postModel.addBitmapList(bitmap);
+    }
+
+    private DeepLearningViewModel deepLearningViewModel;
+
+
+    // DeepLearningViewModel을 반환하는 메서드
+    public DeepLearningViewModel getDeepLearningViewModel() {
+        return deepLearningViewModel;
     }
 }
 

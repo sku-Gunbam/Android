@@ -62,7 +62,7 @@ public class TestDeepLearningActivity extends BasicActivity {
                 .setMaxResults(5)
                 .build();
         objectDetector = ObjectDetector.createFromOptions(getApplicationContext(), options);
-
+/*
         deepLearningViewModel.getResultBitmap().observe(this, new Observer<Bitmap>() {
             @Override
             public void onChanged(@Nullable Bitmap bitmap) {
@@ -70,7 +70,7 @@ public class TestDeepLearningActivity extends BasicActivity {
                     imgViewResult.setImageBitmap(bitmap);
                 }
             }
-        });
+        });*/
 
 
         selectImageButton = findViewById(R.id.deep_button);

@@ -58,8 +58,6 @@ public class PostActivity extends BasicActivity {
     private TextView titleTextView, boardNameTextView, tvCommentCount, tvRecommendCount;
 
     private PostViewModel postViewModel;
-    private ArrayList<PostInfo> postList;
-
     public static String parentCommentId;
     private UserViewModel userViewModel;
 
