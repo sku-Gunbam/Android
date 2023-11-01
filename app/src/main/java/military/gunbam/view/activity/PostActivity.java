@@ -1,5 +1,6 @@
 package military.gunbam.view.activity;
 
+import static military.gunbam.utils.Util.showToast;
 import static military.gunbam.view.fragment.CommentListFragment.loadComments;
 
 import android.app.Activity;
@@ -43,6 +44,7 @@ import military.gunbam.view.ReadContentsView;
 import military.gunbam.view.fragment.CommentListFragment;
 import military.gunbam.viewmodel.PostViewModel;
 import military.gunbam.viewmodel.PostViewModelFactory;
+import military.gunbam.viewmodel.UserViewModel;
 
 public class PostActivity extends BasicActivity {
     private PostInfo postInfo;
@@ -56,9 +58,8 @@ public class PostActivity extends BasicActivity {
     private TextView titleTextView, boardNameTextView, tvCommentCount, tvRecommendCount;
 
     private PostViewModel postViewModel;
-    private ArrayList<PostInfo> postList;
-
     public static String parentCommentId;
+    private UserViewModel userViewModel;
 
     String TAG = "PostActivity";
 
@@ -68,7 +69,18 @@ public class PostActivity extends BasicActivity {
         setContentView(R.layout.activity_post);
 
         postViewModel = new ViewModelProvider(this, new PostViewModelFactory(this)).get(PostViewModel.class);
+        postViewModel.loadCollection("comments");
+        postViewModel.getFirebaseStoreCollection().observe(this, comments -> {
 
+        });
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.loadCurrentUser();
+        userViewModel.getCurrentUser().observe(this, user -> {
+            if (user != null) {
+
+            } else {
+            }
+        });
         postInfo = (PostInfo) getIntent().getSerializableExtra("postInfo");
         readContentsVIew = findViewById(R.id.readContentsView);
 
@@ -98,6 +110,8 @@ public class PostActivity extends BasicActivity {
             case 0:
                 if (resultCode == Activity.RESULT_OK) {
                     postInfo = (PostInfo)data.getSerializableExtra("postinfo");
+
+                    Log.d("테스트 PostActivity", "실행됨");
                     contentsLayout.removeAllViews();
                     uiUpdate();
                 }
@@ -153,48 +167,14 @@ public class PostActivity extends BasicActivity {
     private void storageDelete(PostInfo postInfo){
         postViewModel.firebaseHelperStorageDelete(postInfo);
     }
-    private CollectionReference collection(String comment) {
-        return postViewModel.firebaseStoreCollection(comment);
-    }
 
     public static void ReplyButtonEvent(String parentCommentId) {
-        // Update UI or perform any necessary actions in response to the reply button click
         PostActivity.commentEditText.setHint("대댓글을 입력하세요.");
         PostActivity.parentCommentId = parentCommentId;
     }
 
-    public static void countCommentsWithId(String postId, TextView tvCommentCount) {
-        // Firestore 인스턴스 얻기
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // 'comments' 컬렉션 참조
-        CollectionReference commentsRef = db.collection("comments");
-
-        // postInfo.getId()와 같은 commentId를 가진 문서를 찾기 위한 쿼리
-        Query query = commentsRef.whereEqualTo("commentId", postId);
-
-        // 쿼리 실행
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    // 쿼리 결과로부터 문서 개수 가져오기
-                    int commentCount = task.getResult().size();
-
-                    // 결과 사용 예시
-                    // count 값을 원하는 대로 활용하면 됩니다.
-                    // 예: TextView에 출력하거나 다른 처리 수행
-                    System.out.println("Comment count for postId " + postId + ": " + commentCount);
-                    tvCommentCount.setText("" + commentCount);
-                } else {
-                    // 쿼리 실패 시 예외 처리
-                    Exception e = task.getException();
-                    if (e != null) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+    public void countCommentsWithId(String postId, TextView tvCommentCount) {
+        postViewModel.countCommentsWithId(postId,tvCommentCount);
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -209,38 +189,23 @@ public class PostActivity extends BasicActivity {
                 case R.id.postCommentButton: {
                     String postId = postInfo.getId();
                     String commentContent = commentEditText.getText().toString();
-                    String commentAuthor;
+                    String commentAuthor = userViewModel.getCurrentUser().getValue().getUid();
                     Timestamp commentUploadTime = Timestamp.now();
                     ArrayList<String> recommend = new ArrayList<>();
 
-                    boolean isAnonymous = anonymousCheckBox.isChecked(); // Get the state of the anonymous checkbox
-
-                    commentAuthor = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    boolean isAnonymous = anonymousCheckBox.isChecked();
 
                     if (!TextUtils.isEmpty(commentContent)) {
                         CommentInfo newComment = new CommentInfo(postId, commentContent, commentAuthor, isAnonymous, parentCommentId, commentUploadTime, recommend);
 
-                        CollectionReference commentsCollection = collection("comments");
-                        commentsCollection.add(newComment)
-                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                    @Override
-                                    public void onSuccess(DocumentReference documentReference) {
-                                        showToast(PostActivity.this, "댓글이 작성되었습니다.");
-                                        commentEditText.setText(""); // Clear the comment input
-
-                                        // Hide the keyboard
-                                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                        imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        showToast(PostActivity.this, "댓글 작성에 실패했습니다.");
-                                        // Hide the keyboard
-                                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                        imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
-                                    }
+                        postViewModel.writeComments(newComment,
+                                documentReference -> {
+                                    showToast(PostActivity.this, "댓글이 작성되었습니다.");
+                                    commentEditText.setText("");
+                                    hideKeyboard();
+                                }, e->{
+                                    showToast(PostActivity.this, "댓글 작성에 실패했습니다.");
+                                    hideKeyboard();
                                 });
                         loadComments(postId);
                         countUpdate();
@@ -254,64 +219,46 @@ public class PostActivity extends BasicActivity {
                 }
 
                 case R.id.cardView_recommend: {
-                    String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    String user = userViewModel.getCurrentUser().getValue().getUid();
                     ArrayList<String> recommend = postInfo.getRecommend();
 
                     // 이미 추천한 경우
                     if (recommend.contains(user)) {
                         // 추천 리스트에서 사용자 삭제
                         recommend.remove(user);
+                        String postId = postInfo.getId();
 
-                        // Firebase Firestore 참조
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        postViewModel.deleteRecommend("posts",postId, "recommend" , recommend,
+                                aVoid -> {
+                                    showToast(PostActivity.this, "추천 취소");
+                                },
+                                e ->{
+                                    showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
+                                }
+                        );
 
-                        // posts 컬렉션에서 해당 문서의 recommend 필드 업데이트
-                        db.collection("posts")
-                                .document(postInfo.getId())
-                                .update("recommend", recommend)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        // 성공적으로 업데이트된 경우
-                                        showToast(PostActivity.this, "추천 취소");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // 업데이트 실패 시 오류 메시지 출력
-                                        showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
-                                    }
-                                });
+
                     } else {
                         // 추천 리스트에 사용자 추가
                         recommend.add(user);
-
-                        // Firebase Firestore 참조
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                        // posts 컬렉션에서 해당 문서의 recommend 필드 업데이트
-                        db.collection("posts")
-                                .document(postInfo.getId())
-                                .update("recommend", recommend)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        // 성공적으로 업데이트된 경우
-                                        showToast(PostActivity.this, "추천 완료");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // 업데이트 실패 시 오류 메시지 출력
-                                        showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
-                                    }
-                                });
+                        String postId = postInfo.getId();
+                        postViewModel.addRecommend("posts",postId,"recommend",recommend,
+                                aVoid ->{
+                                    showToast(PostActivity.this, "추천 완료");
+                                },
+                                e -> {
+                                    showToast(PostActivity.this, "추천 업데이트 중 오류: " + e.getMessage());
+                                }
+                        );
                     }
                     countUpdate();
                 }
             }
         }
     };
+    // 키보드 숨기는 함수
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(commentEditText.getWindowToken(), 0);
+    }
 }

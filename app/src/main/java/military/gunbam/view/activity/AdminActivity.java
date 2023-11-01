@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,23 +29,37 @@ import java.util.Map;
 
 import military.gunbam.R;
 import military.gunbam.view.fragment.ChattingFragment;
+import military.gunbam.viewmodel.AdminViewModel;
+import military.gunbam.viewmodel.UserViewModel;
 
 //TODO Mock으로 해야할 듯...
 public class AdminActivity extends BasicActivity {
-
-    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-    FirebaseAuth auth = FirebaseAuth.getInstance();
-    FirebaseUser user = auth.getCurrentUser();
-
+    private UserViewModel userViewModel;
+    private AdminViewModel adminViewModel;
+    private String keyHash = "";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
+        adminViewModel = new ViewModelProvider(this).get(AdminViewModel.class);
+        adminViewModel.getKeyHash().observe(this, hash -> {
+            keyHash = hash;
+        });
+
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel.loadCurrentUser();
+        userViewModel.getCurrentUser().observe(this, user -> {
+            if (user != null) {
+
+            } else {
+            }
+        });
         findViewById(R.id.admin_menu_1_button).setOnClickListener(onClickListener);
         findViewById(R.id.admin_menu_2_button).setOnClickListener(onClickListener);
         findViewById(R.id.admin_menu_3_button).setOnClickListener(onClickListener);
         findViewById(R.id.admin_menu_4_button).setOnClickListener(onClickListener);
         findViewById(R.id.admin_menu_5_button).setOnClickListener(onClickListener);
+
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -51,8 +67,10 @@ public class AdminActivity extends BasicActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.admin_menu_1_button:
-                    if (user != null) {
-                        String userUid = user.getUid();
+                    // if( adminViewModel.getUserInfo() != null)
+                    // if( user << -- >> userViewModel.getCurrentUser().getValue()
+                    if (userViewModel.getCurrentUser().getValue() != null) {
+                        String userUid = userViewModel.getCurrentUser().getValue().getUid();
 
                         String[] boardNames = {"자유게시판", "정보게시판", "군인게시판", "신병게시판", "비밀게시판"};
                         for (String boardName : boardNames) {
@@ -91,20 +109,13 @@ public class AdminActivity extends BasicActivity {
                                 postMap.put("contents", contentsList);
                                 postMap.put("formats", formatList);
                                 postMap.put("publisher", userUid);
+
                                 postMap.put("createdAt", date);
                                 postMap.put("isAnonymous", isAnonymous);
                                 postMap.put("recommend", recommend);
                                 postMap.put("boardName", boardName);
 
-                                // 게시물 Firestore에 추가
-                                firestore.collection("posts")
-                                        .add(postMap)
-                                        .addOnSuccessListener(documentReference -> {
-                                            showToast(AdminActivity.this, "게시물이 추가되었습니다");
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            showToast(AdminActivity.this, "게시물 추가 실패");
-                                        });
+                                adminViewModel.setCollection("posts", postMap, AdminActivity.this);
 
                                 // ArrayList 초기화
                                 contentsList.clear();
@@ -126,58 +137,21 @@ public class AdminActivity extends BasicActivity {
                     break;
 
                 case R.id.admin_menu_4_button:
-                    Log.e("getKeyHash", ""+ getKeyHash(AdminActivity.this));
-                    showToast(AdminActivity.this,"getKeyHash" + getKeyHash(AdminActivity.this));
+                    adminViewModel.loadKeyHash(AdminActivity.this);
+                    Log.e("getKeyHash", ""+ keyHash);
+                    showToast(AdminActivity.this,"getKeyHash" + keyHash);
                     break;
 
                 case R.id.admin_menu_5_button:
                     // "posts" 컬렉션에 대한 참조 가져오기
-                    CollectionReference postsRef = firestore.collection("posts");
 
-                    // "boardName" 필드가 "테스트"인 데이터 찾기
-                    //Query query = postsRef.whereEqualTo("boardName", "테스트");
-
-                    // "contents" 배열에 "이것은 텍스트 내용입니다."를 포함한 데이터 찾기
-                    Query query = postsRef.whereArrayContains("contents", "이것은 텍스트 내용입니다.");
-
-                    query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    // 각 문서를 삭제
-                                    firestore.collection("posts").document(document.getId()).delete();
-                                }
-                            } else {
-                                // 오류 처리
-                            }
-                        }
-                    });
+                    adminViewModel.deleteTestPost();
                     finish();
                     break;
             }
         }
     };
 
-    public static String getKeyHash(final Context context) {
-        PackageManager pm = context.getPackageManager();
-        try {
-            PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
-            if (packageInfo == null)
-                return null;
 
-            for (Signature signature : packageInfo.signatures) {
-                try {
-                    MessageDigest md = MessageDigest.getInstance("SHA");
-                    md.update(signature.toByteArray());
-                    return android.util.Base64.encodeToString(md.digest(), android.util.Base64.NO_WRAP);
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 }

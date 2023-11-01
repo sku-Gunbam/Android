@@ -11,10 +11,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +25,8 @@ import java.util.ArrayList;
 
 import military.gunbam.R;
 import military.gunbam.view.adapter.GalleryAdapter;
+import military.gunbam.viewmodel.DeepLearningViewModel;
+import military.gunbam.viewmodel.DeepLearningViewModelFactory;
 
 public class GalleryActivity extends BasicActivity {
     private RecyclerView recyclerView;
@@ -33,13 +38,13 @@ public class GalleryActivity extends BasicActivity {
         setContentView(R.layout.activity_gallery);
 
         if (ContextCompat.checkSelfPermission(GalleryActivity.this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
+                Manifest.permission.READ_MEDIA_IMAGES)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(GalleryActivity.this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    new String[]{Manifest.permission.READ_MEDIA_IMAGES},
                     1);
             if (ActivityCompat.shouldShowRequestPermissionRationale(GalleryActivity.this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    Manifest.permission.READ_MEDIA_IMAGES)) {
 
             } else {
                 showToast(GalleryActivity.this, getResources().getString(R.string.please_grant_permission));
@@ -70,9 +75,9 @@ public class GalleryActivity extends BasicActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
-
         RecyclerView.Adapter mAdapter = new GalleryAdapter(this, getImagesPath(this));
         recyclerView.setAdapter(mAdapter);
+
     }
 
     public ArrayList<String> getImagesPath(Activity activity) {
@@ -94,9 +99,9 @@ public class GalleryActivity extends BasicActivity {
 
         while (cursor.moveToNext()) {
             PathOfImage = cursor.getString(column_index_data);
-
             listOfAllImages.add(PathOfImage);
         }
         return listOfAllImages;
     }
+
 }

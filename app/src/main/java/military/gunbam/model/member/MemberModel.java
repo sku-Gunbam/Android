@@ -22,6 +22,5 @@ public class MemberModel {
         return input.matches(regex);
     }
 
-
 }
 

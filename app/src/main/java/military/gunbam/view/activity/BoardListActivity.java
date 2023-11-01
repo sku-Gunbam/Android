@@ -3,6 +3,9 @@ package military.gunbam.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,6 +24,7 @@ import military.gunbam.listener.OnPostListener;
 import military.gunbam.model.Post.PostInfo;
 import military.gunbam.view.adapter.BoardListAdapter;
 import military.gunbam.viewmodel.BoardListViewModel;
+import military.gunbam.viewmodel.CommentListViewModel;
 
 public class BoardListActivity extends BasicActivity {
 
@@ -30,12 +34,13 @@ public class BoardListActivity extends BasicActivity {
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     private ArrayList<PostInfo> postList;
- //   private String boardName;
+    private ArrayList<PostInfo> commentsPostsList;
+    private String commentId;
     private String field;
     private String fieldValue;
     private MutableLiveData<ArrayList<PostInfo>> postListLiveData = new MutableLiveData<>();
     private boolean updating;
-
+    private CommentListViewModel commentListViewModel;
     private BoardListAdapter boardListAdapter;
     private BoardListViewModel boardListViewModel;
 
@@ -53,6 +58,8 @@ public class BoardListActivity extends BasicActivity {
             textViewBoardName.setText(fieldValue);
         }else if(field.equals("publisher")){
             textViewBoardName.setText("내가 쓴 게시글");
+        }else if(field.equals("commentAuthor")){
+            textViewBoardName.setText("내가 쓴 댓글");
         }
 
         // postList 초기화
@@ -60,7 +67,7 @@ public class BoardListActivity extends BasicActivity {
 
         // ViewModel 초기화
         boardListViewModel = new ViewModelProvider(this).get(BoardListViewModel.class);
-
+        commentListViewModel = new ViewModelProvider(this).get(CommentListViewModel.class);
         // RecyclerView 및 Adapter 설정
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -73,6 +80,10 @@ public class BoardListActivity extends BasicActivity {
             // Adapter에 데이터를 설정하여 화면 업데이트
             boardListAdapter.setPostList(postList);
         });
+        commentListViewModel.getCommentListLiveData().observe(this, commentList ->{
+
+        });
+
 
         // 스크롤 이벤트 및 초기 데이터 로딩 처리
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -85,10 +96,18 @@ public class BoardListActivity extends BasicActivity {
                 // 스크롤 이벤트 처리 코드...
             }
         });
+        if(field.equals("boardName") || field.equals("publisher")) { // 내가 쓴 글
+            // 초기 데이터 로딩
+            boardListViewModel.loadPosts(false, field, fieldValue);
 
-        // 초기 데이터 로딩
-        boardListViewModel.loadPosts(false,field, fieldValue);
+        }
+        else if(field.equals("commentAuthor")){ // 내가 쓴 댓글
+            commentListViewModel.loadCommentsPosts(fieldValue);  // commentId
+            commentListViewModel.getCommentIdLiveData().observe(this, getCommentId ->{
+                boardListViewModel.loadCommentPosts(false,getCommentId);
+            });
 
+        }
         // 게시물 작성 버튼 클릭 이벤트
         findViewById(R.id.mainFloatingActionButton).setOnClickListener(new View.OnClickListener() {
             @Override
