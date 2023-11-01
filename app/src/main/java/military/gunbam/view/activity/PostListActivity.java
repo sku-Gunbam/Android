@@ -23,8 +23,10 @@ import military.gunbam.R;
 import military.gunbam.listener.OnPostListener;
 import military.gunbam.model.Post.PostInfo;
 import military.gunbam.view.adapter.BoardListAdapter;
+import military.gunbam.view.adapter.PostListAdapter;
 import military.gunbam.viewmodel.BoardListViewModel;
 import military.gunbam.viewmodel.CommentListViewModel;
+import military.gunbam.viewmodel.PostListViewModel;
 
 public class PostListActivity extends BasicActivity {
 

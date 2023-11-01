@@ -2,6 +2,7 @@ package military.gunbam.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import military.gunbam.R;
 import military.gunbam.model.member.MemberInfo;
-import military.gunbam.view.activity.BoardListActivity;
 import military.gunbam.view.activity.MemberInitActivity;
+import military.gunbam.view.activity.PostListActivity;
 import military.gunbam.viewmodel.CommentListViewModel;
 import military.gunbam.viewmodel.MemberInitViewModel;
 import military.gunbam.viewmodel.PostViewModel;
@@ -66,7 +67,7 @@ public class MyPageFragment extends Fragment {
             public void onClick(View v) {
                 //String publisher= "";
                 String publisher = userViewModel.getCurrentUser().getValue().getUid();
-                myStartActivity(BoardListActivity.class, "publisher", publisher);
+                myStartActivity(PostListActivity.class, "publisher", publisher);
             }
 
         });
@@ -77,7 +78,7 @@ public class MyPageFragment extends Fragment {
             public void onClick(View v) {
                 //댓글 작성시 parentCommentId 값을 입력되도록 수정해야함.
                 String commentAuthor = userViewModel.getCurrentUser().getValue().getUid();
-                myStartActivity(BoardListActivity.class, "commentAuthor", commentAuthor);
+                myStartActivity(PostListActivity.class, "commentAuthor", commentAuthor);
 
             }
         });
