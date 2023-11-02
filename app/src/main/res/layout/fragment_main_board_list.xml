@@ -22,8 +22,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/bullet_shape2"
                 android:paddingBottom="5dp"
-                android:textColor="@color/white"
-                android:text="자유\n게시판"/>
+                android:textColor="@color/black"
+                android:text="자유\n게시판"
+                android:lineSpacingExtra ="-5dp"/>
 
             <Button
                 android:id="@+id/main_to_board_2"
@@ -32,8 +33,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/bullet_shape2"
                 android:paddingBottom="5dp"
-                android:textColor="@color/white"
-                android:text="군인\n게시판" />
+                android:textColor="@color/black"
+                android:text="군인\n게시판"
+                android:lineSpacingExtra ="-5dp"/>
 
             <Button
                 android:id="@+id/main_to_board_3"
@@ -42,8 +44,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/bullet_shape2"
                 android:paddingBottom="5dp"
-                android:textColor="@color/white"
-                android:text="신병\n게시판"/>
+                android:textColor="@color/black"
+                android:text="신병\n게시판"
+                android:lineSpacingExtra ="-5dp"/>
 
             <Button
                 android:id="@+id/main_to_board_4"
@@ -52,8 +55,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/bullet_shape2"
                 android:paddingBottom="5dp"
-                android:textColor="@color/white"
-                android:text="정보\n게시판" />
+                android:textColor="@color/black"
+                android:text="정보\n게시판"
+                android:lineSpacingExtra ="-5dp"/>
 
             <Button
                 android:id="@+id/main_to_board_5"
@@ -62,8 +66,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/bullet_shape2"
                 android:paddingBottom="5dp"
-                android:textColor="@color/white"
-                android:text="비밀\n게시판"/>
+                android:textColor="@color/black"
+                android:text="비밀\n게시판"
+                android:lineSpacingExtra ="-5dp"/>
         </LinearLayout>
 
     </HorizontalScrollView>

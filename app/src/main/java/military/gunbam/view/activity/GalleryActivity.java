@@ -94,7 +94,7 @@ public class GalleryActivity extends BasicActivity {
         uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         projection = new String[] { MediaStore.MediaColumns.DATA, MediaStore.Images.Media.BUCKET_DISPLAY_NAME };
 
-        cursor = activity.getContentResolver().query(uri, projection, null, null, null);
+        cursor = activity.getContentResolver().query(uri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC");
         column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
 
         while (cursor.moveToNext()) {

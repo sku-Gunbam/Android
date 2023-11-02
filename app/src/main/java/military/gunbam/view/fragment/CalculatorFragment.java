@@ -57,7 +57,7 @@ public class CalculatorFragment extends Fragment {
 
     public ProgressBar account_progressbar;
     public ImageView account_iv_profile;
-    public TextView account_tv_nickname, account_count, account_tv_progressbar;
+    public TextView account_tv_nickname, account_count, account_tv_progressbar, account_tv_rank;
 
     // Firebase Storage 참조
     private StorageReference storageReference;
@@ -82,6 +82,7 @@ public class CalculatorFragment extends Fragment {
         account_count = view.findViewById(R.id.account_count);
         account_progressbar = view.findViewById(R.id.account_progressbar);
         account_tv_progressbar = view.findViewById(R.id.account_tv_progressbar);
+        account_tv_rank = view.findViewById(R.id.account_tv_rank);
 
 
         account_iv_profile.setOnClickListener(onClickListener);
@@ -246,6 +247,11 @@ public class CalculatorFragment extends Fragment {
                                 String joinDateStr = document.getString("joinDate");
                                 String dischargeDateStr = document.getString("dischargeDate");
 
+                                String rank = document.getString("rank");
+                                String draftUrl = document.getString("draftUrl");
+
+                                showRank(rank, draftUrl);
+
                                 // joinDate와 dischargeDate가 빈 문자열이 아닌 경우에만 D-DAY 표시
                                 if (!TextUtils.isEmpty(joinDateStr) && !TextUtils.isEmpty(dischargeDateStr)) {
                                     // joinDate와 dischargeDate를 D-DAY로 변환하여 표시
@@ -264,6 +270,19 @@ public class CalculatorFragment extends Fragment {
                         }
                     }
                 });
+    }
+
+    private void showRank(String rank, String draftUrl) {
+        Log.d("테스트", rank + "/" + draftUrl );
+        if (rank.equals("user") && draftUrl == null) {
+            account_tv_rank.setText("민간인");
+        } else if (rank.equals("user") && draftUrl != null) {
+            account_tv_rank.setText("심사중");
+        } else if (rank.equals("soldier") && draftUrl != null) {
+            account_tv_rank.setText("군인");
+        } else if (rank.equals("admin")) {
+            account_tv_rank.setText("관리자");
+        }
     }
 
     private void showDday(String joinDateStr, String dischargeDateStr) {
