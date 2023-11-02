@@ -9,7 +9,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <FrameLayout
             android:id="@+id/calculator_container"
@@ -28,69 +29,175 @@
                 android:id="@+id/logoutButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_rounded_bg"
+                android:background="@drawable/button"
                 android:text="@string/logout"
-                android:textColor="@color/white" />
+                android:textColor="@color/black"
+                android:layout_margin="10dp"/>
 
         </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="15dp"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/viewProfileButton"
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="회원정보 조회"
-                android:gravity="start|center_vertical"
-                android:background="#ffffff"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="15dp"
+                app:cardCornerRadius="15dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/memberInit"
+                    android:textStyle="bold"
+                    android:textSize="20dp"
+                    android:layout_marginTop="7dp"/>
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+
+                app:cardCornerRadius="15dp">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_account_circle_black_24dp"
+                    android:background="#ffffff"
+                    android:padding="5dp"/>
+                <Button
+                    android:id="@+id/viewProfileButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="  회원정보 조회"
+                    android:gravity="start|center_vertical"
+                    android:background="#ffffff"/>
+            </LinearLayout>
+
                 />
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:background="@android:color/darker_gray" />
-            <Button
-                android:id="@+id/viewPostsButton"
+
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="내가 쓴 글"
-                android:gravity="start|center_vertical"
-                android:background="#ffffff" />
+                android:layout_marginTop="5dp"
+
+                app:cardCornerRadius="15dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/mypage_post"
+                    android:background="#ffffff"
+                    android:padding="5dp"/>
+                <Button
+                    android:id="@+id/viewPostsButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="  내가 쓴 글"
+                    android:gravity="start|center_vertical"
+                    android:background="#ffffff" />
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:background="@android:color/darker_gray" />
-            <Button
-                android:id="@+id/viewCommentsButton"
+
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="내가 쓴 댓글"
-                android:gravity="start|center_vertical"
-                android:background="#ffffff" />
+                android:layout_marginTop="5dp"
+
+                app:cardCornerRadius="15dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/mypage_comment"
+                    android:background="#ffffff"
+                    android:padding="5dp"/>
+                <Button
+                    android:id="@+id/viewCommentsButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="  내가 쓴 댓글"
+                    android:gravity="start|center_vertical"
+                    android:background="#ffffff" />
+            </LinearLayout>
+
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:background="@android:color/darker_gray" />
-            <Button
-                android:id="@+id/editProfileButton"
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="회원정보 수정"
-                android:gravity="start|center_vertical"
-                android:background="#ffffff" />
+                android:layout_marginTop="5dp"
+
+                app:cardCornerRadius="15dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/mypage_edit"
+                    android:background="#ffffff"
+                    android:padding="5dp"/>
+                <Button
+                    android:id="@+id/editProfileButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="  회원정보 수정"
+                    android:gravity="start|center_vertical"
+                    android:background="#ffffff" />
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:background="@android:color/darker_gray" />
-            <Button
-                android:id="@+id/deleteAccountButton"
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="회원 탈퇴"
-                android:gravity="start|center_vertical"
-                android:background="#ffffff" />
+                android:layout_marginTop="5dp"
+
+                app:cardCornerRadius="15dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/mypage_esc"
+                    android:background="#ffffff"
+                    android:padding="5dp"/>
+
+                <Button
+                    android:id="@+id/deleteAccountButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="  회원 탈퇴"
+                    android:gravity="start|center_vertical"
+                    android:background="#ffffff" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

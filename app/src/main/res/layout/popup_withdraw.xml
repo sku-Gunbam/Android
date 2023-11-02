@@ -5,24 +5,38 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@drawable/info_blank"
     android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="40dp"
         android:text="정말로 회원을 탈퇴하시겠습니까?" />
 
-    <Button
-        android:id="@+id/btn_confirm_withdraw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="회원 탈퇴" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btn_cancel_withdraw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="취소" />
+        <Button
+            android:id="@+id/btn_confirm_withdraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/cancle"
+            android:textColor="#FFA2A2"
+            android:textStyle="bold"
+            android:text="회원 탈퇴" />
+
+        <Button
+            android:id="@+id/btn_cancel_withdraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/button"
+            android:textStyle="bold"
+            android:text="취소" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -3,17 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
         <LinearLayout
+            android:layout_marginTop="150dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/logo"
+                android:layout_gravity="center"/>
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:text="@string/login"
+                android:layout_height="30dp"
+                android:text="군 밤"
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:textSize="24sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -25,23 +32,41 @@
                     android:id="@+id/emailEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="0.8dp"
+                    android:paddingStart="16dp"
+                    android:layout_marginTop="50px"
+                    android:layout_marginLeft="50px"
+                    android:layout_marginRight="50px"
+                    android:background="@drawable/gray"
+                    android:elevation="10dp"
+                    android:layout_gravity="center"
                     android:layout_marginBottom="5dp"
                     android:ems="10"
                     android:hint="@string/email"
                     android:inputType="textEmailAddress"
                     android:minHeight="48dp"
-                    android:autofillHints="" />
+                    android:autofillHints="  "
+                    />
 
                 <EditText
                     android:id="@+id/passwordEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="35dp"
                     android:ems="10"
                     android:hint="@string/password"
                     android:inputType="textPassword"
                     android:minHeight="48dp"
-                    android:autofillHints="" />
+                    android:autofillHints=""
+                    android:padding="0.8dp"
+                    android:paddingStart="16dp"
+                    android:layout_marginTop="50px"
+                    android:layout_marginLeft="50px"
+                    android:layout_marginRight="50px"
+                    android:background="@drawable/gray"
+                    android:elevation="10dp"
+                    android:layout_gravity="center"
+                   />
 
                 <Button
                     android:id="@+id/loginButton"
@@ -49,8 +74,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/login"
                     android:background="@drawable/button_rounded_bg"
-                    android:layout_margin="5dp"
-                    android:textColor="@color/white"/>
+                    android:layout_margin="15dp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -63,8 +89,9 @@
                         android:text="@string/passwordReset"
                         android:layout_weight="1"
                         android:background="@drawable/button_rounded_bg"
-                        android:layout_margin="5dp"
-                        android:textColor="@color/white"/>
+                        android:layout_margin="15dp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"/>
 
                     <Button
                         android:id="@+id/gotoSignButton"
@@ -72,9 +99,10 @@
                         android:layout_height="wrap_content"
                         android:text="@string/signUp"
                         android:layout_weight="1"
-                        android:background="@drawable/button_rounded_bg"
-                        android:layout_margin="5dp"
-                        android:textColor="@color/white"/>
+                        android:background="@drawable/cancle"
+                        android:layout_margin="15dp"
+                        android:textColor="#88592A"
+                        android:textStyle="bold"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

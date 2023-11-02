@@ -131,7 +131,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/account_tv_follower_count"
+                    android:id="@+id/account_tv_rank"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
@@ -139,7 +139,7 @@
                     android:autoSizeMinTextSize="12sp"
                     android:autoSizeStepGranularity="1sp"
                     android:autoSizeTextType="uniform"
-                    android:hint="0"
+                    android:hint="민간인"
                     android:textStyle="bold" />
 
                 <ImageView
@@ -157,7 +157,7 @@
                     android:autoSizeMinTextSize="12sp"
                     android:autoSizeStepGranularity="1sp"
                     android:autoSizeTextType="uniform"
-                    android:hint="총알 수" />
+                    android:hint="군인 인증" />
 
             </LinearLayout>
 
