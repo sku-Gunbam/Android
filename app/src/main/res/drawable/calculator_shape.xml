@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/green" /> <!-- 색상을 원하는 색으로 변경하세요 -->
+    <solid android:color="#95FF72" /> <!-- 색상을 원하는 색으로 변경하세요 -->
     <corners
         android:bottomLeftRadius="30dp"
         android:bottomRightRadius="30dp" />
+    <gradient
+        android:angle="180"
+        android:centerColor="#00FF88"
+        android:endColor="#00FFC4"
+        android:startColor="#00FF40"
+        android:type="linear" />
 </shape>
